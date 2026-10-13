@@ -86,19 +86,21 @@ local L = {
 	SubtitleBottomPad        = 8,
 	-- Tabs
 	TabH                     = 58,
-	TabTextSize              = 16,
-	TabListPad               = 2,
+	TabTextSize              = 24,   -- LuckiestGuy 24px on left tabs
+	RightTabTextSize         = 22,   -- FredokaOne 22px on right/utility tabs
+	TabListPad               = 10,   -- gap between left sidebar tabs
+	RightTabListPad          = 14,   -- gap between right sidebar tabs
 	-- Section / page
 	SectionHeaderH           = 38,   -- alias kept for compat (same as SectionBarH)
 	SectionHeaderTextSize    = 10,
 	SectionLabelIndent       = 12,
 	BevelSize                = 4,
-	PageSectionGap           = 6,
-	PagePad                  = 8,
-	RowListPad               = 1,
+	PageSectionGap           = 4,   -- gap between sections (invisible containers)
+	PagePad                  = 6,
+	RowListPad               = 7,   -- gap between rows in UIListLayout
 	-- Row
 	RowH                     = 64,
-	RowHDesc                 = 76,
+	RowHDesc                 = 78,
 	RowHLabel                = 44,
 	RowIndent                = 10,
 	LabelPad                 = 6,
@@ -122,11 +124,10 @@ local L = {
 	InputBoxH                = 22,
 	InputBoxBottomPad        = 7,
 	InputPadH                = 6,
-	-- Toggle
-	ToggleW                  = 46,
-	ToggleH                  = 22,
-	ToggleKnobS              = 16,
-	ToggleKnobMargin         = 3,
+	-- Toggle (SliderTrack style, matches template)
+	ToggleW                  = 58,   -- track width
+	ToggleH                  = 28,   -- track height
+	ToggleKnobS              = 22,   -- knob size
 	-- Dropdown
 	DropdownOptH             = 28,
 	DropdownOptPadL          = 10,
@@ -145,14 +146,15 @@ local L = {
 	-- Stroke widths
 	StrokeRoot               = 3.6,
 	StrokeHdr                = 3.6,
-	StrokeClose              = 1.8,
-	StrokeSidebar            = 1.5,
-	StrokeTabBtn             = 1.2,
+	StrokeClose              = 3.2,
+	StrokeSidebar            = 3.6,
+	StrokeTabBtn             = 3.2,
 	StrokeSection            = 1.8,
-	StrokeRow                = 1.0,
-	StrokeToggle             = 1.4,
-	StrokePanel              = 1.2,
+	StrokeRow                = 2.0,
+	StrokeToggle             = 1.6,
+	StrokePanel              = 2.2,
 	StrokeInput              = 1.0,
+	StrokePage               = 2.6,  -- page ScrollingFrame border
 	StrokeNotif              = 1.5,
 	-- Fonts (Enum.Font members)
 	FontTitle                = Enum.Font.LuckiestGuy,
@@ -160,9 +162,9 @@ local L = {
 	FontUI                   = Enum.Font.GothamMedium,
 	FontBold                 = Enum.Font.GothamBold,
 	-- Element text sizes
-	ElemNameSize             = 13,
-	ElemDescSize             = 11,
-	ElemValueSize            = 12,
+	ElemNameSize             = 20,   -- row title (FredokaOne Regular)
+	ElemDescSize             = 13,   -- row description (BuilderSans SemiBold Italic)
+	ElemValueSize            = 15,   -- dropdown value label (FredokaOne Regular)
 	-- Notification
 	NotifW                   = 290,
 	NotifH                   = 68,
@@ -175,7 +177,7 @@ local L = {
 	NotifMsgGapY             = 2,
 	NotifMsgBottomPad        = 4,
 	-- Misc
-	ScrollBarThick           = 4,
+	ScrollBarThick           = 6,
 }
 
 local _L_DEFAULTS: {[string]: any} = {}
@@ -341,7 +343,7 @@ local BASE: {[string]: Color3} = {
 	SectionBevel   = Color3.fromRGB(115,14,14),
 	RowBg          = Color3.fromRGB(12,16,12),
 	RowBgHover     = Color3.fromRGB(20,26,20),
-	RowBorder      = Color3.fromRGB(30,40,30),
+	RowBorder      = Color3.fromRGB(34,40,34),
 	RowBorderOuter = Color3.fromRGB(0,0,0),
 	Text           = Color3.fromRGB(255,255,255),
 	TextSub        = Color3.fromRGB(180,190,180),
@@ -447,9 +449,12 @@ end
 -- Resolved from L at load time. Call Library._refreshFonts() after any
 -- LayoutManager:Set("Font*", ...) and before CreateWindow.
 local FONT_TITLE: Font; local FONT_TAB: Font; local FONT_UI: Font; local FONT_BOLD: Font
+local FONT_FREDOKA: Font; local FONT_DESC: Font
 local function _refreshFonts()
-	FONT_TITLE = Font.fromEnum(L.FontTitle); FONT_TAB  = Font.fromEnum(L.FontTab)
-	FONT_UI    = Font.fromEnum(L.FontUI);    FONT_BOLD = Font.fromEnum(L.FontBold)
+	FONT_TITLE   = Font.fromEnum(L.FontTitle); FONT_TAB  = Font.fromEnum(L.FontTab)
+	FONT_UI      = Font.fromEnum(L.FontUI);    FONT_BOLD = Font.fromEnum(L.FontBold)
+	FONT_FREDOKA = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+	FONT_DESC    = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold, Enum.FontStyle.Italic)
 end
 _refreshFonts()
 Library._refreshFonts = _refreshFonts
@@ -658,7 +663,7 @@ local function mkBase(id: string, initial: any, frame: Frame): any
 		end
 	end
 	function self:SetDisabled(b: boolean)
-		disabled = b; frame.BackgroundTransparency = b and 0.6 or 0
+		disabled = b; frame.BackgroundTransparency = b and 0.7 or 0.35
 		for _, d in ipairs(frame:GetDescendants()) do
 			if d:IsA("TextLabel") then (d :: TextLabel).TextTransparency = b and 0.5 or 0 end
 		end
@@ -786,41 +791,53 @@ function Library:CreateWindow(cfg: WindowCfg?)
 	local sectionOpen = true
 	local sectionHeader = Creator.New("TextButton", {
 		Name = "SectionHeader",
-		Position = UDim2.new(0, 0, 0, HDR_H),
+		Position = UDim2.new(0, 0, 0, HDR_H + 2),
 		Size = UDim2.new(1, 0, 0, L.SectionBarH),
 		BackgroundTransparency = 1, Text = "", AutoButtonColor = false,
 		ZIndex = 2, Parent = root,
 	}) :: TextButton
-	local secContent = Instance.new("Frame")
-	secContent.Name = "Content"; secContent.BackgroundTransparency = 1
-	secContent.Size = UDim2.new(1, 0, 1, 0); secContent.Parent = sectionHeader
+	local secContent = Creator.New("Frame", {
+		Name = "Content", AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0, 240, 1, 0),
+		BackgroundTransparency = 1, Parent = sectionHeader,
+	}) :: Frame
 	local secTitle = Creator.New("TextLabel", {
-		Name = "SectionTitle", Text = "", FontFace = FONT_UI, TextSize = L.ElemNameSize,
+		Name = "SectionTitle", Text = "", FontFace = FONT_FREDOKA, TextSize = 23,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.new(0, L.SectionLabelIndent, 0, 0),
-		Size = UDim2.new(1, -L.SectionLabelIndent - 30, 1, 0),
+		Position = UDim2.new(0, 28, 0, 0), Size = UDim2.new(1, -28, 1, 0),
 		BackgroundTransparency = 1, ZIndex = 3,
-		ThemeTag = { TextColor3 = "TextSub" }, Parent = secContent,
+		ThemeTag = { TextColor3 = "Text" }, Parent = secContent,
 	}) :: TextLabel
+	Creator.New("UIStroke", {
+		Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = secTitle,
+	})
 	local chevronFrame = Instance.new("Frame")
 	chevronFrame.Name = "ChevronIcon"; chevronFrame.BackgroundTransparency = 1
-	chevronFrame.AnchorPoint = Vector2.new(1, 0.5)
-	chevronFrame.Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0)
+	chevronFrame.AnchorPoint = Vector2.new(0, 0.5)
+	chevronFrame.Position = UDim2.new(0, 0, 0.5, 0)
 	chevronFrame.Size = UDim2.fromOffset(16, 16); chevronFrame.Parent = secContent
 	local rotBox = Creator.New("Frame", {
 		Name = "RotatedBox", AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.fromOffset(8, 8),
-		Rotation = 45, BorderSizePixel = 0,
-		ThemeTag = { BackgroundColor3 = "TextHint" }, Parent = chevronFrame,
+		Position = UDim2.new(0.5, 0, 0.5, -2), Size = UDim2.fromOffset(12, 12),
+		Rotation = 45, BorderSizePixel = 0, BackgroundTransparency = 1, Parent = chevronFrame,
+	})
+	Creator.New("Frame", {
+		Name = "BottomBar", Position = UDim2.new(0, 0, 1, -3), Size = UDim2.new(1, 0, 0, 3),
+		BorderSizePixel = 0, ThemeTag = { BackgroundColor3 = "Text" }, Parent = rotBox,
+	})
+	Creator.New("Frame", {
+		Name = "RightBar", Position = UDim2.new(1, -3, 0, 0), Size = UDim2.new(0, 3, 1, 0),
+		BorderSizePixel = 0, ThemeTag = { BackgroundColor3 = "Text" }, Parent = rotBox,
 	})
 
 	-- PagesHolder (scrollable content area, between SectionHeader and BottomBar)
-	local pagesTop = HDR_H + L.SectionBarH
+	local pagesTop = 108  -- HDR_H(64) + 2 + SectionBarH(38) + 4 = 108
 	local pagesH   = H - pagesTop - L.BottomBarH
 	local pagesHolder = Instance.new("Frame")
 	pagesHolder.Name = "PagesHolder"
-	pagesHolder.Position = UDim2.new(0, 0, 0, pagesTop)
-	pagesHolder.Size = UDim2.new(1, 0, 0, pagesH)
+	pagesHolder.Position = UDim2.new(0, 12, 0, pagesTop)
+	pagesHolder.Size = UDim2.new(1, -24, 0, pagesH)
 	pagesHolder.BackgroundTransparency = 1; pagesHolder.ClipsDescendants = true
 	pagesHolder.Parent = root
 
@@ -836,44 +853,59 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "SidebarBorder" }, Parent = bottomBar,
 	})
 	Creator.New("TextLabel", {
-		Name = "SearchLabel", Text = "Search", FontFace = FONT_UI, TextSize = L.ElemDescSize,
+		Name = "SearchLabel", Text = "Search", FontFace = FONT_FREDOKA, TextSize = 19,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0, 56, 1, 0),
-		BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextHint" }, Parent = bottomBar,
+		Position = UDim2.new(0, 18, 0, 0), Size = UDim2.new(0, 80, 1, 0),
+		BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" }, Parent = bottomBar,
 	})
 	local searchContainer = Instance.new("Frame")
 	searchContainer.Name = "SearchFieldContainer"
-	searchContainer.Position = UDim2.new(0, 66, 0.5, 0); searchContainer.AnchorPoint = Vector2.new(0, 0.5)
-	searchContainer.Size = UDim2.new(1, -80, 0, 22)
-	searchContainer.BackgroundTransparency = 1; searchContainer.Parent = bottomBar
+	searchContainer.AnchorPoint = Vector2.new(0, 0)
+	searchContainer.Position = UDim2.new(0, 105, 0.5, -17)
+	searchContainer.Size = UDim2.new(1, -165, 0, 34)
+	searchContainer.BackgroundColor3 = Color3.fromRGB(6, 8, 6)
+	searchContainer.BackgroundTransparency = 0; searchContainer.BorderSizePixel = 0
+	searchContainer.Parent = bottomBar
+	Creator.New("UIStroke", {
+		Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = searchContainer,
+	})
 	local searchInput = Creator.New("TextBox", {
-		Name = "SearchInput", Text = "", PlaceholderText = "Search features\226\128\166",
-		FontFace = FONT_UI, TextSize = L.ElemDescSize,
+		Name = "SearchInput", Text = "", PlaceholderText = (cfg and cfg.SearchPlaceholder) or "Filter features\226\128\166",
+		FontFace = FONT_UI, TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false,
-		Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1,
-		ThemeTag = { TextColor3 = "Text", PlaceholderColor3 = "TextHint" },
+		Position = UDim2.new(0, 10, 0, 0), Size = UDim2.new(1, -16, 1, 0),
+		BackgroundTransparency = 1,
+		PlaceholderColor3 = Color3.fromRGB(130,135,140),
+		ThemeTag = { TextColor3 = "Text" },
 		Parent = searchContainer,
 	}) :: TextBox
 
 	-- LeftSidebar (external, to the left of CenterWindow)
-	local leftSidebar = Instance.new("Frame")
+	local leftSidebar = Instance.new("ScrollingFrame")
 	leftSidebar.Name = "LeftSidebar"; leftSidebar.AnchorPoint = Vector2.new(1, 0)
 	leftSidebar.Position = UDim2.new(0.5, -L.SidebarXOffset, 0, L.SidebarTopOffset)
 	leftSidebar.Size = UDim2.fromOffset(SIDE_W, L.SidebarH)
-	leftSidebar.BackgroundTransparency = 1; leftSidebar.Parent = master
+	leftSidebar.BackgroundTransparency = 1; leftSidebar.BorderSizePixel = 0
+	leftSidebar.ScrollBarThickness = 0; leftSidebar.ScrollingEnabled = false
+	leftSidebar.AutomaticCanvasSize = Enum.AutomaticSize.None
+	leftSidebar.Parent = master
 	local leftLayout = Instance.new("UIListLayout")
 	leftLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	leftLayout.Padding = UDim.new(0, L.TabListPad); leftLayout.Parent = leftSidebar
 
 	-- RightSidebar (external, to the right of CenterWindow)
-	local rightSidebar = Instance.new("Frame")
+	local rightSidebar = Instance.new("ScrollingFrame")
 	rightSidebar.Name = "RightSidebar"; rightSidebar.AnchorPoint = Vector2.new(0, 0)
 	rightSidebar.Position = UDim2.new(0.5, L.SidebarXOffset, 0, L.SidebarTopOffset)
 	rightSidebar.Size = UDim2.fromOffset(SIDE_W, L.SidebarH)
-	rightSidebar.BackgroundTransparency = 1; rightSidebar.Parent = master
+	rightSidebar.BackgroundTransparency = 1; rightSidebar.BorderSizePixel = 0
+	rightSidebar.ScrollBarThickness = 0; rightSidebar.ScrollingEnabled = false
+	rightSidebar.AutomaticCanvasSize = Enum.AutomaticSize.None
+	rightSidebar.Parent = master
 	local rightLayout = Instance.new("UIListLayout")
 	rightLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	rightLayout.Padding = UDim.new(0, L.TabListPad); rightLayout.Parent = rightSidebar
+	rightLayout.Padding = UDim.new(0, L.RightTabListPad); rightLayout.Parent = rightSidebar
 
 	-- Register frames for LayoutManager live updates
 	_liveRefs = { root=root, header=hdr, master=master, pagesHolder=pagesHolder,
@@ -903,20 +935,40 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		end))
 	end
 
-	-- Minimize (key shortcut collapses CenterWindow to HeaderBar height, hides sidebars)
+	-- ReopenPill: shown when window is hidden, click to reopen
+	local reopenPill = Creator.New("TextButton", {
+		Name = "ReopenPill",
+		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 14),
+		Size = UDim2.fromOffset(220, 44),
+		Text = "OPEN " .. (title:upper()) .. "  [R-SHIFT]",
+		FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+		TextSize = 16, TextColor3 = Color3.fromRGB(255,255,255),
+		AutoButtonColor = false, BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.fromRGB(224, 32, 32), ZIndex = 10, Visible = false,
+		Parent = gui,
+	}) :: TextButton
+	Creator.New("UIStroke", {
+		Thickness = 3.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = reopenPill,
+	})
+	Creator.New("UIGradient", {
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(244, 52, 52)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(175, 18, 18)),
+		}), Rotation = 90, Parent = reopenPill,
+	})
+
+	-- Minimize (key shortcut hides window, shows ReopenPill)
 	local minimised = false
 	local function setMin(state: boolean)
 		minimised = state
-		sectionHeader.Visible = not state
-		pagesHolder.Visible   = not state
-		bottomBar.Visible     = not state
-		leftSidebar.Visible   = not state
-		rightSidebar.Visible  = not state
-		tw(root, { Size = UDim2.fromOffset(W, state and HDR_H or H) }, Anim.Window)
+		master.Visible     = not state
+		reopenPill.Visible = state
 	end
 	maid:Give(UserInputService.InputBegan:Connect(function(inp, gp)
 		if not gp and inp.KeyCode == minKey then setMin(not minimised) end
 	end))
+	maid:Give(reopenPill.MouseButton1Click:Connect(function() setMin(false) end))
 
 	-- Section accordion collapse
 	maid:Give(sectionHeader.MouseButton1Click:Connect(function()
@@ -947,17 +999,17 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		end
 	end))
 
-	-- Tab state: active tab is full-opacity; inactive tabs are semi-transparent (darker)
+	-- Tab state: active=full solid, inactive=slight transparency (same style, slightly dimmed)
 	local activeTab: any = nil
 	local function activateTab(tab: any)
 		if activeTab == tab then return end
 		if activeTab then
 			activeTab._page.Visible = false
-			tw(activeTab._btn, { BackgroundTransparency = 0.3 }, Anim.Tab)
+			tw(activeTab._btn, { BackgroundTransparency = 0.25 }, Anim.Tab)
 		end
 		activeTab = tab; tab._page.Visible = true
 		tw(tab._btn, { BackgroundTransparency = 0 }, Anim.Tab)
-		secTitle.Text = tab._label .. " Section"
+		secTitle.Text = tab._label
 	end
 
 	local Window: any = { _gui = gui, _root = master, _maid = maid, _tabs = {} :: {any}, _utilTabs = {} :: {any} }
@@ -989,21 +1041,35 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
 			BorderSizePixel = 0, ZIndex = 3, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = btn,
 		})
+		local isRight = (side == "right")
 		local btnLabel = Creator.New("TextLabel", {
-			Name = "Label", Text = tabLabel, FontFace = FONT_TITLE,
-			TextSize = L.TabTextSize, TextXAlignment = Enum.TextXAlignment.Center,
-			Position = UDim2.new(0, L.BevelSize + 4, 0, 0),
-			Size = UDim2.new(1, -(L.BevelSize + 4), 1, 0),
+			Name = "Label", Text = tabLabel,
+			FontFace = isRight and FONT_FREDOKA or FONT_TITLE,
+			TextSize = isRight and L.RightTabTextSize or L.TabTextSize,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1, ZIndex = 3,
 			ThemeTag = { TextColor3 = "TabTextActive" }, Parent = btn,
 		}) :: TextLabel
+		Creator.New("UIStroke", {
+			Thickness = isRight and 2.4 or 2.4,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+			LineJoinMode = Enum.LineJoinMode.Miter,
+			Color = Color3.new(0,0,0), Parent = btnLabel,
+		})
 
-		local page = Instance.new("ScrollingFrame")
-		page.Name = pageName; page.Size = UDim2.new(1, 0, 1, 0)
-		page.BackgroundTransparency = 1; page.BorderSizePixel = 0
-		page.ScrollBarThickness = L.ScrollBarThick; page.ScrollBarImageColor3 = T.ScrollBar
-		page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		page.CanvasSize = UDim2.new(0, 0, 0, 0); page.Visible = false; page.Parent = pagesHolder
+		local page = Creator.New("ScrollingFrame", {
+			Name = pageName, Size = UDim2.new(1, 0, 1, 0),
+			BackgroundColor3 = Color3.fromRGB(10,14,10), BackgroundTransparency = 0.45,
+			BorderSizePixel = 0,
+			ScrollBarThickness = L.ScrollBarThick, ScrollBarImageColor3 = T.ScrollBar,
+			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			CanvasSize = UDim2.new(0, 0, 0, 0), Visible = false, Parent = pagesHolder,
+		}) :: ScrollingFrame
+		Creator.New("UIStroke", {
+			Thickness = L.StrokePage, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = page,
+		})
 		local pageLayout = Instance.new("UIListLayout")
 		pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		pageLayout.Padding = UDim.new(0, L.PageSectionGap); pageLayout.Parent = page
@@ -1018,7 +1084,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			if activeTab ~= Tab then tw(btn, { BackgroundTransparency = 0.1 }, Anim.Tab) end
 		end))
 		maid:Give(btn.MouseLeave:Connect(function()
-			if activeTab ~= Tab then tw(btn, { BackgroundTransparency = 0.3 }, Anim.Tab) end
+			if activeTab ~= Tab then tw(btn, { BackgroundTransparency = 0.25 }, Anim.Tab) end
 		end))
 		if side == "right" then
 			table.insert(self._utilTabs, Tab)
@@ -1028,43 +1094,18 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			if #self._tabs == 1 then activateTab(Tab) end
 		end
 
-		function Tab:Section(sectionLabel: string?): any
-			local secFrame = Creator.New("Frame", {
-				Name = "Section", Size = UDim2.new(1, 0, 0, 0),
-				AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = #self._sections + 1,
-				ThemeTag = { BackgroundColor3 = "SectionBg" }, Parent = page,
-			}) :: Frame
-			Creator.New("UIStroke", {
-				Thickness = L.StrokeSection, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "RowBorderOuter" }, Parent = secFrame,
-			})
-			Creator.New("Frame", {
-				Name = "_bevelL", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
-				ZIndex = 3, ThemeTag = { BackgroundColor3 = "SectionBevel" }, Parent = secFrame,
-			})
-			Creator.New("Frame", {
-				Name = "_bevelB", AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
-				BorderSizePixel = 0, ZIndex = 3, ThemeTag = { BackgroundColor3 = "SectionBevel" }, Parent = secFrame,
-			})
-			local hasLabel = sectionLabel and sectionLabel ~= ""
-			if hasLabel then
-				local hStrip = Creator.New("Frame", {
-					Name = "SectionHeader", Size = UDim2.new(1, 0, 0, L.SectionHeaderH),
-					ThemeTag = { BackgroundColor3 = "SectionBevel" }, Parent = secFrame,
-				})
-				Creator.New("TextLabel", {
-					Text = (sectionLabel :: string):upper(), FontFace = FONT_BOLD,
-					TextSize = L.SectionHeaderTextSize, TextXAlignment = Enum.TextXAlignment.Left,
-					Position = UDim2.new(0, L.SectionLabelIndent, 0, 0),
-					Size = UDim2.new(1, -L.SectionLabelIndent, 1, 0),
-					BackgroundTransparency = 1, ZIndex = 2, ThemeTag = { TextColor3 = "TextHint" }, Parent = hStrip,
-				})
-			end
+		function Tab:Section(_sectionLabel: string?): any
+			local secFrame = Instance.new("Frame")
+			secFrame.Name = "Section"
+			secFrame.Size = UDim2.new(1, 0, 0, 0)
+			secFrame.AutomaticSize = Enum.AutomaticSize.Y
+			secFrame.LayoutOrder = #self._sections + 1
+			secFrame.BackgroundTransparency = 1
+			secFrame.Parent = page
 			local inner = Instance.new("Frame")
 			inner.Name = "Inner"
-			inner.Position = UDim2.new(0, L.BevelSize, 0, hasLabel and L.SectionHeaderH or 0)
-			inner.Size = UDim2.new(1, -L.BevelSize, 0, 0); inner.AutomaticSize = Enum.AutomaticSize.Y
+			inner.Position = UDim2.new(0, 0, 0, 0)
+			inner.Size = UDim2.new(1, 0, 0, 0); inner.AutomaticSize = Enum.AutomaticSize.Y
 			inner.BackgroundTransparency = 1; inner.Parent = secFrame
 			local rowLayout = Instance.new("UIListLayout")
 			rowLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1078,6 +1119,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				local r = Creator.New("Frame", {
 					Name = "Row_" .. Section._rows,
 					Size = UDim2.new(1, 0, 0, height), LayoutOrder = Section._rows,
+					BackgroundTransparency = 0.35,
 					ThemeTag = { BackgroundColor3 = "RowBg" }, Parent = inner,
 				}) :: Frame
 				Creator.New("UIStroke", {
@@ -1094,19 +1136,33 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			end
 			local function rowHover(row: Frame, el: any)
 				maid:Give(row.MouseEnter:Connect(function()
-					if not el:IsDisabled() then tw(row, { BackgroundColor3 = T.RowBgHover }, Anim.Row) end
+					if not el:IsDisabled() then
+						tw(row, { BackgroundColor3 = T.RowBgHover, BackgroundTransparency = 0.2 }, Anim.Row)
+					end
 				end))
 				maid:Give(row.MouseLeave:Connect(function()
-					tw(row, { BackgroundColor3 = T.RowBg }, Anim.Row)
+					tw(row, { BackgroundColor3 = T.RowBg, BackgroundTransparency = 0.35 }, Anim.Row)
 				end))
 			end
-			local function mkLabel(txt: string, size: number, token: string, parent: Instance, bold: boolean?): TextLabel
+			-- mkLabel: token="name" uses FredokaOne+UIStroke, token="desc" uses BuilderSans Italic
+			local function mkLabel(txt: string, _size: number, token: string, parent: Instance, _bold: boolean?): TextLabel
+				local isName = (token == "Text")
+				local isDesc = (token == "TextSub")
 				local l = Creator.New("TextLabel", {
-					Text = txt, FontFace = bold and FONT_BOLD or FONT_UI,
-					TextSize = size, TextXAlignment = Enum.TextXAlignment.Left,
-					BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, size + L.LabelPad),
+					Text = txt,
+					FontFace = isDesc and FONT_DESC or FONT_FREDOKA,
+					TextSize = isName and L.ElemNameSize or L.ElemDescSize,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, 0, 0, (isName and L.ElemNameSize or L.ElemDescSize) + L.LabelPad),
 					ThemeTag = { TextColor3 = token },
 				}) :: TextLabel
+				if isName then
+					Creator.New("UIStroke", {
+						Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+						LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = l,
+					})
+				end
 				l.Parent = parent; return l
 			end
 
@@ -1117,48 +1173,62 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 				local on  = opts.Default == true
-				local row = mkRow(opts.Description and L.RowHDesc or L.RowH); local ri = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local hasDesc = opts.Description ~= nil
+				local row = mkRow(hasDesc and L.RowHDesc or L.RowH)
+				-- Name label: full-height for no-desc rows, top-positioned for desc rows
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
 				end
+				-- SliderTrack (template-style rectangular toggle)
 				local TW = L.ToggleW; local TH = L.ToggleH; local KS = L.ToggleKnobS
-				local KM = L.ToggleKnobMargin
-				local track = Creator.New("Frame", {
-					Name = "Track", AnchorPoint = Vector2.new(1, 0.5),
-					Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
+				local OFF_POS = UDim2.new(0, 3, 0.5, 0)
+				local ON_POS  = UDim2.new(1, -(KS + 3), 0.5, 0)  -- (1,-25,0.5,0) for KS=22
+				local track = Creator.New("TextButton", {
+					Name = "SliderTrack", AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, -16, 0.5, 0),
 					Size = UDim2.fromOffset(TW, TH),
-					ThemeTag = { BackgroundColor3 = on and "ToggleOn" or "ToggleOff" }, Parent = row,
+					AutoButtonColor = false,
+					BackgroundColor3 = Color3.fromRGB(10, 14, 10), Parent = row,
+				}) :: TextButton
+				Creator.New("UIStroke", {
+					Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = track,
+				})
+				local knob = Creator.New("Frame", {
+					Name = "SliderKnob", AnchorPoint = Vector2.new(0, 0.5),
+					Position = on and ON_POS or OFF_POS,
+					Size = UDim2.fromOffset(KS, KS),
+					BackgroundColor3 = Color3.fromRGB(250, 250, 250), Parent = track,
 				}) :: Frame
 				Creator.New("UIStroke", {
-					Thickness = L.StrokeToggle, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "RowBorderOuter" }, Parent = track,
+					Thickness = 1.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = knob,
 				})
-				local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, TH // 2); c.Parent = track
-				local knob = Creator.New("Frame", {
-					Name = "Knob", AnchorPoint = Vector2.new(0.5, 0.5),
-					Position = on and UDim2.new(0, TW - KS//2 - KM, 0.5, 0)
-					              or UDim2.new(0, KS//2 + KM, 0.5, 0),
-					Size = UDim2.fromOffset(KS, KS),
-					ThemeTag = { BackgroundColor3 = "ToggleKnob" }, Parent = track,
+				Creator.New("UIGradient", {
+					Color = ColorSequence.new({
+						ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
+						ColorSequenceKeypoint.new(1, Color3.fromRGB(145,145,150)),
+					}), Rotation = 90, Parent = knob,
 				})
-				local ck = Instance.new("UICorner"); ck.CornerRadius = UDim.new(0, KS // 2); ck.Parent = knob
 				local el = mkBase(opts.Id, on, row)
 				function el:_apply(v: boolean)
-					on = v; local token = v and "ToggleOn" or "ToggleOff"
-					Creator.Reg[track] = { BackgroundColor3 = token }
-					tw(track, { BackgroundColor3 = T[token] }, Anim.ToggleTrack)
-					tw(knob, { Position = v and UDim2.new(0, TW - KS//2 - KM, 0.5, 0)
-					                       or UDim2.new(0, KS//2 + KM, 0.5, 0) }, Anim.Toggle)
+					on = v
+					tw(knob, { Position = v and ON_POS or OFF_POS }, Anim.Toggle)
 					if opts.Callback then
 						local ok, e = xpcall(opts.Callback, debug.traceback, v)
 						if not ok then warn("[Ignis] Toggle cb: " .. e) end
 					end
 				end
-				maid:Give(track.InputBegan:Connect(function(inp)
-					if inp.UserInputType == Enum.UserInputType.MouseButton1
-						and not el:IsDisabled() then el:Set(not on) end
+				maid:Give(track.MouseButton1Click:Connect(function()
+					if not el:IsDisabled() then el:Set(not on) end
 				end))
 				rowHover(row, el); return el
 			end
@@ -1172,26 +1242,32 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 				local step = opts.Step or 1
 				local val  = math.clamp(opts.Default or opts.Min, opts.Min, opts.Max)
-				local row  = mkRow(opts.Description and L.SliderRowHDesc or L.SliderRowH)
-				local ri   = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local hasDesc = opts.Description ~= nil
+				local row  = mkRow(hasDesc and L.SliderRowHDesc or L.SliderRowH)
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.6, 0, 0.55, 0)
 				end
 				local valL = Creator.New("TextLabel", {
-					Text = tostring(val), FontFace = FONT_UI, TextSize = L.ElemValueSize,
+					Text = tostring(val), FontFace = FONT_FREDOKA, TextSize = 15,
 					TextXAlignment = Enum.TextXAlignment.Right,
 					AnchorPoint = Vector2.new(1, 0),
-					Position = UDim2.new(1, -L.ElemRightPad, 0, L.SliderValLabelY),
+					Position = UDim2.new(1, -16, 0, 6),
 					Size = UDim2.new(0, L.SliderValLabelW, 0, L.SliderValLabelH),
-					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = ri,
+					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = row,
 				}) :: TextLabel
-				local TRY = opts.Description and L.SliderTrackYD or L.SliderTrackY
+				local TRY = hasDesc and L.SliderTrackYD or L.SliderTrackY
 				local track = Creator.New("Frame", {
-					Position = UDim2.new(0, 0, 0, TRY),
-					Size = UDim2.new(1, -L.SliderTrackRightPad, 0, L.SliderTrackH),
-					ThemeTag = { BackgroundColor3 = "SliderTrack" }, Parent = ri,
+					Position = UDim2.new(0, 16, 0, TRY),
+					Size = UDim2.new(1, -16 - L.SliderTrackRightPad, 0, L.SliderTrackH),
+					ThemeTag = { BackgroundColor3 = "SliderTrack" }, Parent = row,
 				}) :: Frame
 				Creator.New("UIStroke", {
 					Thickness = L.StrokeRow, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -1250,18 +1326,25 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				Id: string, Name: string, Description: string?, Callback: (() -> ())?,
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-				local row = mkRow(opts.Description and L.RowHDesc or L.RowH); local ri = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local hasDesc = opts.Description ~= nil
+				local row = mkRow(hasDesc and L.RowHDesc or L.RowH)
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
 				end
 				Creator.New("TextLabel", {
 					Text = "›", FontFace = FONT_BOLD, TextSize = L.BtnChevronSize,
 					AnchorPoint = Vector2.new(1, 0.5),
 					Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
 					Size = UDim2.fromOffset(L.BtnChevronW, L.BtnChevronH),
-					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = ri,
+					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = row,
 				})
 				local el = mkBase(opts.Id, nil, row)
 				function el:_apply(_v: any) end
@@ -1271,7 +1354,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 						local ok, e = xpcall(opts.Callback, debug.traceback)
 						if not ok then warn("[Ignis] Button cb: " .. e) end
 					end
-					tw(row, { BackgroundColor3 = T.SectionBevel }, Anim.Button)
+					tw(row, { BackgroundColor3 = T.TabActiveBg }, Anim.Button)
 					task.delay((Anim.ButtonOut :: TweenInfo).Time, function()
 						tw(row, { BackgroundColor3 = T.RowBg }, Anim.ButtonOut)
 					end)
@@ -1290,64 +1373,94 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				Multi: boolean?, Callback: ((any) -> ())?,
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-				local multi = opts.Multi == true
-				local cur   = opts.Default or opts.Options[1] or ""
+				local multi  = opts.Multi == true
+				local cur    = opts.Default or opts.Options[1] or ""
 				local mSel: {[string]: boolean} = {}
-				local H      = opts.Description and L.SliderRowHDesc or L.SliderRowH
+				local hasDesc = opts.Description ~= nil
+				local rowH   = hasDesc and L.RowHDesc or L.RowH
 				local isOpen = false
-				local row = mkRow(H); local ri = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local row = mkRow(rowH)
+				-- Name label positioned like toggle
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
 				end
-				local dispL = Creator.New("TextLabel", {
-					Text = cur, FontFace = FONT_UI, TextSize = L.ElemDescSize,
-					TextXAlignment = Enum.TextXAlignment.Right,
+				-- DropdownPill: 160×38, dark BG, AP=(1,0.5), offset from right
+				local pill = Creator.New("TextButton", {
+					Name = "DropdownPill",
 					AnchorPoint = Vector2.new(1, 0.5),
-					Position = UDim2.new(1, -L.DropdownLabelRightPad, 0.5, 0),
-					Size = UDim2.new(0.45, 0, 0, L.DropdownLabelH),
-					BackgroundTransparency = 1, TextTruncate = Enum.TextTruncate.AtEnd,
-					ThemeTag = { TextColor3 = "TextSub" }, Parent = ri,
-				}) :: TextLabel
-				Creator.New("TextLabel", {
-					Text = "∨", FontFace = FONT_BOLD, TextSize = L.DropdownChevronSize,
-					AnchorPoint = Vector2.new(1, 0.5),
-					Position = UDim2.new(1, -L.DropdownChevronRightPad, 0.5, 0),
-					Size = UDim2.fromOffset(L.DropdownChevronContainerS, L.DropdownChevronContainerS),
-					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = ri,
+					Position = UDim2.new(1, -16, 0.5, 0),
+					Size = UDim2.fromOffset(160, 38),
+					Text = "", AutoButtonColor = false,
+					BackgroundColor3 = Color3.fromRGB(6, 8, 6), Parent = row,
+				}) :: TextButton
+				Creator.New("UIStroke", {
+					Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = pill,
 				})
-				local shield = Instance.new("TextButton")
-				shield.Name = "Shield"; shield.Size = UDim2.new(1, 0, 1, 0)
-				shield.BackgroundTransparency = 1; shield.Text = ""; shield.ZIndex = 9
-				shield.Visible = false; shield.Parent = content
-				local panel = Creator.New("Frame", {
-					Position = UDim2.new(0, 0, 0, H), Size = UDim2.new(1, 0, 0, 0),
-					AutomaticSize = Enum.AutomaticSize.Y, ClipsDescendants = false,
-					ZIndex = 8, Visible = false,
-					ThemeTag = { BackgroundColor3 = "InputBg" }, Parent = row,
+				local dispL = Creator.New("TextLabel", {
+					Name = "ValueLabel", Text = cur,
+					FontFace = FONT_FREDOKA, TextSize = 15,
+					TextXAlignment = Enum.TextXAlignment.Center,
+					Position = UDim2.new(0, 10, 0, 0), Size = UDim2.new(1, -38, 1, 0),
+					BackgroundTransparency = 1, TextTruncate = Enum.TextTruncate.AtEnd,
+					ThemeTag = { TextColor3 = "Text" }, Parent = pill,
+				}) :: TextLabel
+				Creator.New("UIStroke", {
+					Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = dispL,
+				})
+				-- Chevron (green RotatedBox)
+				local chev = Instance.new("Frame")
+				chev.Name = "ChevronIcon"; chev.BackgroundTransparency = 1
+				chev.AnchorPoint = Vector2.new(1, 0.5)
+				chev.Position = UDim2.new(1, -8, 0.5, 0)
+				chev.Size = UDim2.fromOffset(14, 14); chev.Parent = pill
+				local rBox = Instance.new("Frame")
+				rBox.Name = "RotatedBox"; rBox.BackgroundTransparency = 1
+				rBox.AnchorPoint = Vector2.new(0.5, 0.5)
+				rBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+				rBox.Size = UDim2.fromOffset(10, 10); rBox.Rotation = 45; rBox.Parent = chev
+				Creator.New("Frame", {
+					Name = "BottomBar", Position = UDim2.new(0, 0, 1, -2), Size = UDim2.new(1, 0, 0, 2),
+					BackgroundColor3 = Color3.fromRGB(40,215,80), BorderSizePixel = 0, Parent = rBox,
+				})
+				Creator.New("Frame", {
+					Name = "RightBar", Position = UDim2.new(1, -2, 0, 0), Size = UDim2.new(0, 2, 1, 0),
+					BackgroundColor3 = Color3.fromRGB(40,215,80), BorderSizePixel = 0, Parent = rBox,
+				})
+				-- DropdownMenu: frame anchored to bottom of pill, ZIndex=50
+				local optH  = 32
+				local menuH = math.min(#opts.Options * optH, 128)
+				local menu = Creator.New("Frame", {
+					Name = "DropdownMenu",
+					AnchorPoint = Vector2.new(1, 0),
+					Position = UDim2.new(1, -16, 1, 4),
+					Size = UDim2.fromOffset(160, menuH),
+					BackgroundColor3 = Color3.fromRGB(14, 18, 14),
+					ZIndex = 50, Visible = false, Parent = row,
 				}) :: Frame
 				Creator.New("UIStroke", {
-					Thickness = L.StrokePanel, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "InputBorder" }, Parent = panel,
+					Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = menu,
 				})
-				local pList = Instance.new("UIListLayout")
-				pList.SortOrder = Enum.SortOrder.LayoutOrder; pList.Parent = panel
+				local mList = Instance.new("UIListLayout")
+				mList.SortOrder = Enum.SortOrder.LayoutOrder; mList.Parent = menu
 				for _, opt in ipairs(opts.Options) do
 					local ob = Creator.New("TextButton", {
-						Text = opt, FontFace = FONT_UI, TextSize = L.ElemValueSize,
-						TextXAlignment = Enum.TextXAlignment.Left,
-						Size = UDim2.new(1, 0, 0, L.DropdownOptH), AutoButtonColor = false,
-						ZIndex = 9, ThemeTag = { BackgroundColor3 = "RowBg", TextColor3 = "Text" }, Parent = panel,
+						Text = opt, FontFace = FONT_FREDOKA, TextSize = 14,
+						TextXAlignment = Enum.TextXAlignment.Center,
+						Size = UDim2.new(1, 0, 0, optH), AutoButtonColor = true,
+						ZIndex = 51, BackgroundColor3 = Color3.fromRGB(14,18,14),
+						ThemeTag = { TextColor3 = "Text" }, Parent = menu,
 					}) :: TextButton
-					local op = Instance.new("UIPadding")
-					op.PaddingLeft = UDim.new(0, L.DropdownOptPadL); op.Parent = ob
-					maid:Give(ob.MouseEnter:Connect(function()
-						tw(ob, { BackgroundColor3 = T.RowBgHover }, Anim.Dropdown)
-					end))
-					maid:Give(ob.MouseLeave:Connect(function()
-						tw(ob, { BackgroundColor3 = T.RowBg }, Anim.Dropdown)
-					end))
 					maid:Give(ob.MouseButton1Click:Connect(function()
 						if multi then
 							mSel[opt] = not mSel[opt]
@@ -1357,18 +1470,20 @@ function Library:CreateWindow(cfg: WindowCfg?)
 							if opts.Callback then xpcall(opts.Callback, debug.traceback, sel) end
 						else
 							cur = opt; dispL.Text = opt
-							panel.Visible = false; shield.Visible = false; isOpen = false
+							menu.Visible = false; isOpen = false
 							if opts.Callback then xpcall(opts.Callback, debug.traceback, opt) end
 						end
 					end))
 				end
+				local shield = Instance.new("TextButton")
+				shield.Name = "Shield"; shield.Size = UDim2.new(1, 0, 1, 0)
+				shield.BackgroundTransparency = 1; shield.Text = ""; shield.ZIndex = 49
+				shield.Visible = false; shield.Parent = pagesHolder
 				local function close()
-					panel.Visible = false; shield.Visible = false; isOpen = false
+					menu.Visible = false; shield.Visible = false; isOpen = false
 				end
-				maid:Give(row.InputBegan:Connect(function(inp)
-					if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-						isOpen = not isOpen; panel.Visible = isOpen; shield.Visible = isOpen
-					end
+				maid:Give(pill.MouseButton1Click:Connect(function()
+					isOpen = not isOpen; menu.Visible = isOpen; shield.Visible = isOpen
 				end))
 				maid:Give(shield.MouseButton1Click:Connect(close))
 				local el = mkBase(opts.Id, cur, row)
@@ -1397,18 +1512,24 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 				local val = opts.Default or ""
-				local row = mkRow(opts.Description and L.InputRowHDesc or L.InputRowH)
-				local ri  = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local hasDesc = opts.Description ~= nil
+				local row = mkRow(hasDesc and L.InputRowHDesc or L.InputRowH)
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
 				end
 				local ibg = Creator.New("Frame", {
-					AnchorPoint = Vector2.new(0, 1),
-					Position = UDim2.new(0, 0, 1, -L.InputBoxBottomPad),
-					Size = UDim2.new(1, -L.ElemRightPad, 0, L.InputBoxH),
-					ThemeTag = { BackgroundColor3 = "InputBg" }, Parent = ri,
+					AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, -16, 0.5, 0),
+					Size = UDim2.new(0, 160, 0, L.InputBoxH),
+					ThemeTag = { BackgroundColor3 = "InputBg" }, Parent = row,
 				}) :: Frame
 				Creator.New("UIStroke", {
 					Thickness = L.StrokeInput, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -1441,11 +1562,18 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 				local bound = opts.Default or Enum.KeyCode.Unknown; local listening = false
-				local row = mkRow(opts.Description and L.RowHDesc or L.RowH); local ri = rowInner(row)
-				mkLabel(opts.Name, L.ElemNameSize, "Text", ri, true)
-				if opts.Description then
-					local dl = mkLabel(opts.Description, L.ElemDescSize, "TextSub", ri)
-					dl.Position = UDim2.new(0, 0, 0, L.ElemNameSize + L.LabelPad)
+				local hasDesc = opts.Description ~= nil
+				local row = mkRow(hasDesc and L.RowHDesc or L.RowH)
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
 				end
 				local pill = Creator.New("TextButton", {
 					Text = bound == Enum.KeyCode.Unknown and "None" or bound.Name,
@@ -1453,7 +1581,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 					AnchorPoint = Vector2.new(1, 0.5),
 					Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
 					Size = UDim2.fromOffset(L.KeybindPillW, L.KeybindPillH), ZIndex = 2,
-					ThemeTag = { BackgroundColor3 = "InputBg", TextColor3 = "TextSub" }, Parent = ri,
+					ThemeTag = { BackgroundColor3 = "InputBg", TextColor3 = "TextSub" }, Parent = row,
 				}) :: TextButton
 				Creator.New("UIStroke", {
 					Thickness = L.StrokeInput, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -1500,8 +1628,9 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			-- ── Label ─────────────────────────────────────────────────────
 			function Section:Label(opts: {Id: string, Name: string, Value: string?, Color: string?}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-				local row = mkRow(L.RowHLabel); local ri = rowInner(row)
-				local nl = mkLabel(opts.Name, L.ElemValueSize, "TextSub", ri)
+				local row = mkRow(L.RowHLabel)
+				local nl = mkLabel(opts.Name, L.ElemValueSize, "TextSub", row)
+				nl.Position = UDim2.new(0, 16, 0, 0)
 				nl.Size = UDim2.new(0.5, 0, 1, 0)
 				local vl = Creator.New("TextLabel", {
 					Text = opts.Value or "", FontFace = FONT_UI, TextSize = L.ElemValueSize,
@@ -1510,7 +1639,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 					Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
 					Size = UDim2.new(0.5, 0, 1, 0), BackgroundTransparency = 1,
 					TextTruncate = Enum.TextTruncate.AtEnd,
-					ThemeTag = { TextColor3 = opts.Color or "Text" }, Parent = ri,
+					ThemeTag = { TextColor3 = opts.Color or "Text" }, Parent = row,
 				}) :: TextLabel
 				local el = mkBase(opts.Id, opts.Value or "", row)
 				function el:_apply(v: any) vl.Text = tostring(v) end
@@ -1684,8 +1813,8 @@ function Library:CreateWindow(cfg: WindowCfg?)
 	end
 	function Window:IsDestroyed(): boolean return gui == nil or not gui.Parent end
 
-	-- Close button calls Window:Destroy() so _windowBuilt is reset consistently
-	maid:Give(closeBtn.MouseButton1Click:Connect(function() Window:Destroy() end))
+	-- Close button hides window (shows ReopenPill to reopen); Destroy() still available via API
+	maid:Give(closeBtn.MouseButton1Click:Connect(function() setMin(true) end))
 
 	Library.Window = Window
 	return Window
