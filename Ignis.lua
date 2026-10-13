@@ -146,6 +146,7 @@ local L = {
 	NotifMsgGapY             = 2,
 	NotifMsgBottomPad        = 4,
 	ScrollBarThick           = 6,
+	RowIconSize              = 34,
 }
 
 local _L_DEFAULTS: {[string]: any} = {}
@@ -1032,14 +1033,29 @@ local function _mkLabel(txt: string, token: string, parent: Instance): TextLabel
 	return l
 end
 
-local function _positionLabels(nameLabel: TextLabel, descLabel: TextLabel?)
+local function _applyRowIcon(row: Frame, image: string): number
+	Creator.New("ImageLabel", {
+		Name = "RowIcon",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 4, 0.5, 0),
+		Size = UDim2.fromOffset(L.RowIconSize, L.RowIconSize),
+		BackgroundTransparency = 1,
+		Image = image,
+		ScaleType = Enum.ScaleType.Fit,
+		Parent = row,
+	})
+	return 4 + L.RowIconSize + 6 - 16
+end
+
+local function _positionLabels(nameLabel: TextLabel, descLabel: TextLabel?, xOff: number?)
+	local x = 16 + (xOff or 0)
 	if descLabel then
-		nameLabel.Position = UDim2.new(0, 16, 0, 8)
+		nameLabel.Position = UDim2.new(0, x, 0, 8)
 		nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
-		descLabel.Position = UDim2.new(0, 16, 0, 42)
+		descLabel.Position = UDim2.new(0, x, 0, 42)
 		descLabel.Size = UDim2.new(0.6, 0, 0, 22)
 	else
-		nameLabel.Position = UDim2.new(0, 16, 0, 0)
+		nameLabel.Position = UDim2.new(0, x, 0, 0)
 		nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
 	end
 end
@@ -1080,7 +1096,8 @@ local function _buildToggleRow(Section: any, inner: Instance, maid: any, opts: a
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local track, knob, ON_POS, OFF_POS = _buildToggleTrack(row, on)
 	local el = mkBase(opts.Id, on, row)
 	function el:_apply(v: boolean)
@@ -1203,7 +1220,8 @@ local function _buildDropdownRow(Section: any, inner: Instance, maid: any, opts:
 	local dispText = multi and type(rawDef) == "table" and (#rawDef > 0 and table.concat(rawDef, ", ") or "None") or tostring(curBox.v)
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl, dl = _mkLabel(opts.Name, "Text", row), opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local pill, dispL, rotBox = _buildDropdownPill(row, dispText)
 	local el = mkBase(opts.Id, multi and rawDef or curBox.v, row)
 	local menu: Frame
@@ -1238,7 +1256,8 @@ local function _buildInputRow(Section: any, inner: Instance, maid: any, opts: an
 	local row = _mkRow(Section, inner, opts.Description and L.InputRowHDesc or L.InputRowH)
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local _, box, stroke = _buildInputBox(row, val, opts.Placeholder or "")
 	local ok1, c1 = pcall(function() return box.Focused:Connect(function() tw(stroke, { Color = T.SliderFill }, Anim.Fast) end) end)
 	if ok1 and c1 then maid:Give(c1) end
@@ -1263,7 +1282,8 @@ local function _buildCompoundRow(Section: any, inner: Instance, maid: any, opts:
 	local curVal = opts.DefaultValue or opts.Default or "0"
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl, dl = _mkLabel(opts.Name, "Text", row), opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local grp = Instance.new("Frame")
 	grp.Name = "ControlGroup"; grp.BackgroundTransparency = 1; grp.AnchorPoint = Vector2.new(1, 0.5)
 	grp.Position = UDim2.new(1, -16, 0.5, 0); grp.Size = UDim2.fromOffset(165, 38); grp.Parent = row
@@ -1368,7 +1388,8 @@ local function _buildSliderRow(Section: any, inner: Instance, maid: any, opts: a
 	local row = _mkRow(Section, inner, opts.Description and L.SliderRowHDesc or L.SliderRowH)
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local valL = Creator.New("TextLabel", {
 		Text = tostring(val), FontFace = FONT_FREDOKA, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Right,
 		AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 6), Size = UDim2.new(0, L.SliderValLabelW, 0, L.SliderValLabelH),
@@ -1407,7 +1428,8 @@ local function _buildButtonRow(Section: any, inner: Instance, maid: any, opts: a
 		Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = row })
 	end
 	local nl, dl = _mkLabel(opts.Name, "Text", row), opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	Creator.New("TextLabel", {
 		Text = "›", FontFace = FONT_BOLD, TextSize = L.BtnChevronSize, AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0), Size = UDim2.fromOffset(L.BtnChevronW, L.BtnChevronH),
@@ -1454,7 +1476,8 @@ local function _buildKeybindRow(Section: any, inner: Instance, maid: any, opts: 
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local pill = Creator.New("TextButton", {
 		Text = bound == Enum.KeyCode.Unknown and "None" or bound.Name, FontFace = FONT_UI, TextSize = L.ElemDescSize,
 		AutoButtonColor = false, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
@@ -1470,8 +1493,9 @@ end
 
 local function _buildLabelRow(Section: any, inner: Instance, opts: any): any
 	local row = _mkRow(Section, inner, L.RowHLabel)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
 	local nl = _mkLabel(opts.Name, "TextSub", row)
-	nl.Position = UDim2.new(0, 16, 0, 0); nl.Size = UDim2.new(0.5, 0, 1, 0)
+	nl.Position = UDim2.new(0, 16 + iconXOff, 0, 0); nl.Size = UDim2.new(0.5, 0, 1, 0)
 	local vl = Creator.New("TextLabel", {
 		Text = opts.Value or "", FontFace = FONT_UI, TextSize = L.ElemValueSize,
 		TextXAlignment = Enum.TextXAlignment.Right, AnchorPoint = Vector2.new(1, 0.5),
@@ -1509,7 +1533,7 @@ local function _buildParagraphRow(Section: any, inner: Instance, opts: any): any
 	return el
 end
 
-local function _buildItemListEl(Section: any, inner: Instance, opts: any): any
+local function _buildListEl(Section: any, inner: Instance, opts: any): any
 	Section._rows += 1
 	local listFrame = Creator.New("Frame", {
 		Name = "Row_" .. Section._rows,
@@ -1524,10 +1548,11 @@ local function _buildItemListEl(Section: any, inner: Instance, opts: any): any
 	listLayout.Padding = UDim.new(0, 2)
 	listLayout.Parent = listFrame
 	local currentItems: {any} = {}
-	local function buildItemRow(item: any, idx: number)
+	local function buildRow(item: any, idx: number)
+		local hasImg = item.Image and item.Image ~= ""
 		local rowF = Creator.New("Frame", {
-			Name = "ItemRow_" .. idx,
-			Size = UDim2.new(1, 0, 0, 52),
+			Name = "ListRow_" .. idx,
+			Size = UDim2.new(1, 0, 0, L.RowHLabel),
 			LayoutOrder = idx,
 			BackgroundTransparency = 0.5,
 			ThemeTag = { BackgroundColor3 = "RowBg" },
@@ -1538,63 +1563,47 @@ local function _buildItemListEl(Section: any, inner: Instance, opts: any): any
 			LineJoinMode = Enum.LineJoinMode.Miter,
 			ThemeTag = { Color = "RowBorder" }, Parent = rowF,
 		})
-		Creator.New("ImageLabel", {
-			Name = "Icon",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 8, 0.5, 0),
-			Size = UDim2.fromOffset(36, 36),
-			BackgroundTransparency = 1,
-			Image = tostring(item.Image or ""),
-			ScaleType = Enum.ScaleType.Fit,
-			Parent = rowF,
-		})
+		local nameX = 12
+		if hasImg then
+			Creator.New("ImageLabel", {
+				Name = "Icon",
+				AnchorPoint = Vector2.new(0, 0.5),
+				Position = UDim2.new(0, 4, 0.5, 0),
+				Size = UDim2.fromOffset(L.RowIconSize, L.RowIconSize),
+				BackgroundTransparency = 1,
+				Image = tostring(item.Image),
+				ScaleType = Enum.ScaleType.Fit,
+				Parent = rowF,
+			})
+			nameX = 4 + L.RowIconSize + 6
+		end
 		Creator.New("TextLabel", {
-			Name = "ItemName",
-			Position = UDim2.new(0, 52, 0, 8),
-			Size = UDim2.new(1, -140, 0, 20),
+			Name = "Name",
+			Position = UDim2.new(0, nameX, 0, 0),
+			Size = UDim2.new(0.65, -nameX, 1, 0),
 			BackgroundTransparency = 1,
 			Text = tostring(item.Name or ""),
 			FontFace = FONT_FREDOKA,
-			TextSize = 15,
+			TextSize = L.ElemValueSize,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			ThemeTag = { TextColor3 = "Text" },
 			Parent = rowF,
 		})
-		if item.Description and item.Description ~= "" then
+		if item.Value ~= nil then
 			Creator.New("TextLabel", {
-				Name = "ItemDesc",
-				Position = UDim2.new(0, 52, 0, 30),
-				Size = UDim2.new(1, -140, 0, 16),
+				Name = "Value",
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
+				Size = UDim2.new(0.35, 0, 1, 0),
 				BackgroundTransparency = 1,
-				Text = tostring(item.Description),
-				FontFace = FONT_DESC,
-				TextSize = 13,
-				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = tostring(item.Value),
+				FontFace = FONT_UI,
+				TextSize = L.ElemValueSize,
+				TextXAlignment = Enum.TextXAlignment.Right,
 				TextTruncate = Enum.TextTruncate.AtEnd,
 				ThemeTag = { TextColor3 = "TextSub" },
 				Parent = rowF,
-			})
-		end
-		if item.Tag then
-			local tagF = Creator.New("Frame", {
-				Name = "Tag",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -8, 0.5, 0),
-				Size = UDim2.fromOffset(76, 20),
-				BackgroundColor3 = item.TagColor or T.SectionBevel,
-				Parent = rowF,
-			}) :: Frame
-			Creator.New("UICorner", { CornerRadius = UDim.new(0, 4), Parent = tagF })
-			Creator.New("TextLabel", {
-				Size = UDim2.new(1, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Text = tostring(item.Tag),
-				FontFace = FONT_FREDOKA,
-				TextSize = 12,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				TextColor3 = Color3.new(1, 1, 1),
-				Parent = tagF,
 			})
 		end
 	end
@@ -1604,7 +1613,7 @@ local function _buildItemListEl(Section: any, inner: Instance, opts: any): any
 		end
 		currentItems = items
 		for i, item in ipairs(items) do
-			buildItemRow(item, i)
+			buildRow(item, i)
 		end
 	end
 	if opts.Items then rebuild(opts.Items) end
@@ -1654,7 +1663,8 @@ local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, op
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
-	_positionLabels(nl, dl)
+	local iconXOff = opts.Image and _applyRowIcon(row, opts.Image) or 0
+	_positionLabels(nl, dl, iconXOff)
 	local swatch = _buildColorSwatch(row, col)
 	local panel = Creator.New("Frame", { Name = "ColorPickerPanel", AnchorPoint = Vector2.new(0, 0), Position = UDim2.fromOffset(0, 0), Size = UDim2.fromOffset(200, 104), ThemeTag = { BackgroundColor3 = "InputBg" }, ZIndex = 1, Visible = false, ClipsDescendants = false, Parent = overlay }) :: Frame
 	Creator.New("UIStroke", { Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = panel })
@@ -1676,6 +1686,53 @@ local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, op
 	local el = mkBase(opts.Id, col, row)
 	function el:_apply(v: any) if typeof(v) == "Color3" then col = v; r_, g_, b_ = math.round(col.R * 255), math.round(col.G * 255), math.round(col.B * 255); rebuild() end end
 	_bindRowHover(row, el, maid)
+	return el
+end
+
+local function _buildImageRow(Section: any, inner: Instance, opts: any): any
+	local iw = opts.Width or 64
+	local ih = opts.Height or 64
+	Section._rows += 1
+	local row = Creator.New("Frame", {
+		Name = "Row_" .. Section._rows,
+		Size = UDim2.new(1, 0, 0, ih + 16),
+		LayoutOrder = Section._rows,
+		BackgroundTransparency = 0.35,
+		ThemeTag = { BackgroundColor3 = "RowBg" },
+		Parent = inner,
+	}) :: Frame
+	Creator.New("UIStroke", {
+		Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Miter,
+		ThemeTag = { Color = "RowBorder" }, Parent = row,
+	})
+	local img = Creator.New("ImageLabel", {
+		Name = "Image",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.fromOffset(iw, ih),
+		BackgroundTransparency = 1,
+		Image = tostring(opts.Image or ""),
+		ScaleType = Enum.ScaleType.Fit,
+		Parent = row,
+	}) :: ImageLabel
+	if opts.Caption then
+		Creator.New("TextLabel", {
+			Name = "Caption",
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -4),
+			Size = UDim2.new(0.9, 0, 0, 14),
+			BackgroundTransparency = 1,
+			Text = opts.Caption,
+			FontFace = FONT_DESC,
+			TextSize = 12,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			ThemeTag = { TextColor3 = "TextHint" },
+			Parent = row,
+		})
+	end
+	local el = mkBase(opts.Id, opts.Image or "", row)
+	function el:_apply(v: any) img.Image = tostring(v) end
 	return el
 end
 
@@ -1720,15 +1777,20 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildLabelRow(Section, inner, opts)
 	end
+	function Section:Image(opts: any): any
+		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
+		return _buildImageRow(Section, inner, opts)
+	end
+	Section.AddImage = Section.Image
 	function Section:Paragraph(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildParagraphRow(Section, inner, opts)
 	end
-	function Section:ItemList(opts: any): any
+	function Section:List(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-		return _buildItemListEl(Section, inner, opts)
+		return _buildListEl(Section, inner, opts)
 	end
-	Section.AddItemList = Section.ItemList
+	Section.AddList = Section.List
 	function Section:ColorPicker(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildColorPickerRow(Section, inner, maid, opts, pagesHolder, overlay)
@@ -1737,7 +1799,7 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 	Section.AddKeybind = Section.Keybind
 	Section.AddLabel = Section.Label
 	Section.AddParagraph = Section.Paragraph
-	Section.AddItemList = Section.ItemList
+	Section.AddList = Section.List
 	Section.AddColorPicker = Section.ColorPicker
 end
 
