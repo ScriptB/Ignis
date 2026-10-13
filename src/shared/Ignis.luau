@@ -1621,7 +1621,7 @@ local function _buildSection(tab: any, page: ScrollingFrame, secLabel: string?, 
 end
 
 local function _buildTabItem(window: any, tabLabel: string, opts_: any, leftSidebar: ScrollingFrame, rightSidebar: ScrollingFrame, pagesHolder: Frame, maid: any, activateTab: (any) -> (), getActiveTab: () -> any, showToast: (string) -> (), secTitle: TextLabel?): any
-	local isRight = (opts_ and opts_.Side) == "right"
+	local isRight = opts_ and type(opts_.Side) == "string" and opts_.Side:lower() == "right"
 	local sidebar = isRight and rightSidebar or leftSidebar
 	local tabList = isRight and window._utilTabs or window._tabs
 	local tabIdx = #tabList + 1
