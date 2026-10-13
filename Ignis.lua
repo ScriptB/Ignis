@@ -950,7 +950,6 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				Creator.New("TextLabel", {
 					Text = (sectionLabel :: string):upper(), FontFace = FONT_BOLD,
 					TextSize = L.SectionHeaderTextSize, TextXAlignment = Enum.TextXAlignment.Left,
-					LetterSpacing = 100,
 					Position = UDim2.new(0, L.SectionLabelIndent, 0, 0),
 					Size = UDim2.new(1, -L.SectionLabelIndent, 1, 0),
 					BackgroundTransparency = 1, ZIndex = 2, ThemeTag = { TextColor3 = "TextHint" }, Parent = hStrip,
