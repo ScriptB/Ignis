@@ -817,6 +817,19 @@ test("Ignis core tw fallback sets properties directly without AnimationManager",
     Ignis._tw = prevTw
 end)
 
+test("ignis_fuzzer.lua executes cleanly across random rebuild cycles using full library", function()
+    if Ignis.Window then Ignis.Window:Destroy() end
+    local runFuzz = require("../ignis_fuzzer") :: any
+    assert(type(runFuzz) == "function", "ignis_fuzzer should return builder function")
+    for i = 1, 5 do
+        if Ignis.Window then Ignis.Window:Destroy() end
+        local win = runFuzz()
+        assert(win ~= nil, "fuzzer should return Window instance")
+        assert(not win:IsDestroyed(), "window should be active after build")
+    end
+    if Ignis.Window then Ignis.Window:Destroy() end
+end)
+
 -- ── Summary ───────────────────────────────────────────────────────────────────
 print(string.format("\n══════════════════════════════════════════════════════"))
 print(string.format("  %d passed   %d failed   %d skipped", _passed, _failed, _skipped))
