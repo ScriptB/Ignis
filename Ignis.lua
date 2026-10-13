@@ -1509,6 +1509,111 @@ local function _buildParagraphRow(Section: any, inner: Instance, opts: any): any
 	return el
 end
 
+local function _buildItemListEl(Section: any, inner: Instance, opts: any): any
+	Section._rows += 1
+	local listFrame = Creator.New("Frame", {
+		Name = "Row_" .. Section._rows,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = Section._rows,
+		BackgroundTransparency = 1,
+		Parent = inner,
+	}) :: Frame
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 2)
+	listLayout.Parent = listFrame
+	local currentItems: {any} = {}
+	local function buildItemRow(item: any, idx: number)
+		local rowF = Creator.New("Frame", {
+			Name = "ItemRow_" .. idx,
+			Size = UDim2.new(1, 0, 0, 52),
+			LayoutOrder = idx,
+			BackgroundTransparency = 0.5,
+			ThemeTag = { BackgroundColor3 = "RowBg" },
+			Parent = listFrame,
+		}) :: Frame
+		Creator.New("UIStroke", {
+			Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter,
+			ThemeTag = { Color = "RowBorder" }, Parent = rowF,
+		})
+		Creator.New("ImageLabel", {
+			Name = "Icon",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 8, 0.5, 0),
+			Size = UDim2.fromOffset(36, 36),
+			BackgroundTransparency = 1,
+			Image = tostring(item.Image or ""),
+			ScaleType = Enum.ScaleType.Fit,
+			Parent = rowF,
+		})
+		Creator.New("TextLabel", {
+			Name = "ItemName",
+			Position = UDim2.new(0, 52, 0, 8),
+			Size = UDim2.new(1, -140, 0, 20),
+			BackgroundTransparency = 1,
+			Text = tostring(item.Name or ""),
+			FontFace = FONT_FREDOKA,
+			TextSize = 15,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			ThemeTag = { TextColor3 = "Text" },
+			Parent = rowF,
+		})
+		if item.Description and item.Description ~= "" then
+			Creator.New("TextLabel", {
+				Name = "ItemDesc",
+				Position = UDim2.new(0, 52, 0, 30),
+				Size = UDim2.new(1, -140, 0, 16),
+				BackgroundTransparency = 1,
+				Text = tostring(item.Description),
+				FontFace = FONT_DESC,
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				ThemeTag = { TextColor3 = "TextSub" },
+				Parent = rowF,
+			})
+		end
+		if item.Tag then
+			local tagF = Creator.New("Frame", {
+				Name = "Tag",
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -8, 0.5, 0),
+				Size = UDim2.fromOffset(76, 20),
+				BackgroundColor3 = item.TagColor or T.SectionBevel,
+				Parent = rowF,
+			}) :: Frame
+			Creator.New("UICorner", { CornerRadius = UDim.new(0, 4), Parent = tagF })
+			Creator.New("TextLabel", {
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Text = tostring(item.Tag),
+				FontFace = FONT_FREDOKA,
+				TextSize = 12,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextColor3 = Color3.new(1, 1, 1),
+				Parent = tagF,
+			})
+		end
+	end
+	local function rebuild(items: {any})
+		for _, c in ipairs(listFrame:GetChildren()) do
+			if c:IsA("Frame") then c:Destroy() end
+		end
+		currentItems = items
+		for i, item in ipairs(items) do
+			buildItemRow(item, i)
+		end
+	end
+	if opts.Items then rebuild(opts.Items) end
+	local el = mkBase(opts.Id, opts.Items or {}, listFrame)
+	function el:_apply(v: any) if type(v) == "table" then rebuild(v) end end
+	function el:Get(): any return currentItems end
+	return el
+end
+
 local function _buildColorSwatch(row: Frame, col: Color3)
 	local swatch = Creator.New("TextButton", {
 		Name = "ColorSwatch", Text = "", AnchorPoint = Vector2.new(1, 0.5),
@@ -1619,6 +1724,11 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildParagraphRow(Section, inner, opts)
 	end
+	function Section:ItemList(opts: any): any
+		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
+		return _buildItemListEl(Section, inner, opts)
+	end
+	Section.AddItemList = Section.ItemList
 	function Section:ColorPicker(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildColorPickerRow(Section, inner, maid, opts, pagesHolder, overlay)
@@ -1627,6 +1737,7 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 	Section.AddKeybind = Section.Keybind
 	Section.AddLabel = Section.Label
 	Section.AddParagraph = Section.Paragraph
+	Section.AddItemList = Section.ItemList
 	Section.AddColorPicker = Section.ColorPicker
 end
 
