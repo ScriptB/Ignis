@@ -1,7 +1,7 @@
 --!strict
 --[[
 ╔══════════════════════════════════════════════════════════════════╗
-║  IGNIS  ·  v3.3.0  ·  Script UI Library                         ║
+║  IGNIS  ·  v3.4.0  ·  Script UI Library                         ║
 ║  Successor to Ember. Built for live Roblox environments.         ║
 ║  Architecture: Library → Window → Tab → Section → Element       ║
 ║  Managers: AnimationManager · ThemeManager · LayoutManager       ║
@@ -203,6 +203,15 @@ local function _applyLiveToken(key: string)
 	end
 end
 
+local Library: any = {
+	Window = nil,
+	Options = {},
+	Version = "3.4.0",
+	_theme = "Ignis Dark",
+	_themeSubs = {},
+}
+Library.__index = Library
+
 local LayoutManager: any = {}
 
 function LayoutManager:Set(key: string, value: any)
@@ -237,90 +246,22 @@ function LayoutManager:Reset()
 	for k, v in pairs(_L_DEFAULTS) do L[k] = v end
 end
 
--- ── Animation layer ───────────────────────────────────────────────────────
-local _animEnabled = true
-
-local _DEF_DUR: {[string]: number} = {
-	Toggle = 0.28, ToggleTrack = 0.14, Slider = 0.00,
-	Button = 0.10, ButtonOut = 0.12,   Tab    = 0.14,
-	Row    = 0.10, Window    = 0.22,   Notif  = 0.28,
-	NotifOut = 0.20, Keybind = 0.14, Dropdown = 0.10, Default = 0.14,
-}
-local _DEF_STYLE: {[string]: {any}} = {
-	Toggle      = { Enum.EasingStyle.Back,   Enum.EasingDirection.Out },
-	ToggleTrack = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Slider      = { Enum.EasingStyle.Linear, Enum.EasingDirection.Out },
-	Button      = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	ButtonOut   = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Tab         = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Row         = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Window      = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Notif       = { Enum.EasingStyle.Back,   Enum.EasingDirection.Out },
-	NotifOut    = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Keybind     = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Dropdown    = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-	Default     = { Enum.EasingStyle.Quad,   Enum.EasingDirection.Out },
-}
-local _ANIM_PRESETS: {[string]: {[string]: any}} = {
-	Default = {},
-	Snappy  = {
-		Toggle      = { dur = 0.15, style = Enum.EasingStyle.Back },
-		ToggleTrack = { dur = 0.08 }, Button  = { dur = 0.07 }, ButtonOut = { dur = 0.08 },
-		Tab         = { dur = 0.08 }, Row     = { dur = 0.06 }, Window    = { dur = 0.14 },
-		Notif       = { dur = 0.16, style = Enum.EasingStyle.Back }, NotifOut = { dur = 0.12 },
-		Keybind     = { dur = 0.08 }, Dropdown = { dur = 0.06 }, Default  = { dur = 0.08 },
-	},
-	Smooth  = {
-		Toggle      = { dur = 0.40, style = Enum.EasingStyle.Sine },
-		ToggleTrack = { dur = 0.22, style = Enum.EasingStyle.Sine },
-		Button      = { dur = 0.16, style = Enum.EasingStyle.Sine },
-		ButtonOut   = { dur = 0.20, style = Enum.EasingStyle.Sine },
-		Tab         = { dur = 0.22, style = Enum.EasingStyle.Sine },
-		Row         = { dur = 0.12, style = Enum.EasingStyle.Sine },
-		Window      = { dur = 0.32, style = Enum.EasingStyle.Sine },
-		Notif       = { dur = 0.38, style = Enum.EasingStyle.Sine },
-		NotifOut    = { dur = 0.28, style = Enum.EasingStyle.Sine },
-		Keybind     = { dur = 0.22, style = Enum.EasingStyle.Sine },
-		Dropdown    = { dur = 0.12, style = Enum.EasingStyle.Sine },
-		Default     = { dur = 0.22, style = Enum.EasingStyle.Sine },
-	},
-	Bounce  = {
-		Toggle = { dur = 0.40, style = Enum.EasingStyle.Bounce },
-		Button = { dur = 0.20, style = Enum.EasingStyle.Bounce },
-		Notif  = { dur = 0.36, style = Enum.EasingStyle.Bounce },
-	},
-	None    = {},
-}
-local Anim: {[string]: TweenInfo} = {}
-local function _rebuildAnim(preset: string, speed: number, scope: any)
-	local overrides  = _ANIM_PRESETS[preset] or {}
-	local everywhere = scope == "everywhere"
-	for cat, defDur in pairs(_DEF_DUR) do
-		local inScope = everywhere
-			or (type(scope) == "table" and (scope :: {string})[cat] ~= nil)
-			or (type(scope) == "string" and not everywhere and cat == scope)
-			or cat == "Default"
-		local dur   = defDur
-		local sArr  = _DEF_STYLE[cat] or { Enum.EasingStyle.Quad, Enum.EasingDirection.Out }
-		local style = sArr[1]; local dir = sArr[2]
-		if inScope and overrides[cat] then
-			local ov = overrides[cat]
-			if ov.dur   then dur   = ov.dur  end
-			if ov.style then style = ov.style end
-			if ov.dir   then dir   = ov.dir   end
-		end
-		if cat == "Row" or cat == "Dropdown" then dur = math.min(dur, 0.12) end
-		Anim[cat] = TweenInfo.new(dur * speed, style, dir)
-	end
-end
-_rebuildAnim("Default", 1.0, "everywhere")
+local Anim: any = setmetatable({}, {
+	__index = function(_, k)
+		return Library.Anim and Library.Anim[k]
+	end,
+})
 
 local function tw(inst: Instance, props: {[string]: any}, info: TweenInfo?)
-	if not _animEnabled then
-		for k, v in pairs(props) do pcall(function() (inst :: any)[k] = v end) end
+	if Library._tw then
+		Library._tw(inst, props, info)
 		return
 	end
-	TweenService:Create(inst, info or Anim.Default, props):Play()
+	for k, v in pairs(props) do
+		pcall(function()
+			(inst :: any)[k] = v
+		end)
+	end
 end
 
 -- ── Theme tokens ──────────────────────────────────────────────────────────
@@ -367,192 +308,136 @@ local BASE: {[string]: Color3} = {
 	NotifBar       = Color3.fromRGB(224,32,32),
 	ScrollBar      = Color3.fromRGB(48,52,66),
 }
-local THEME_PRESETS: {[string]: {[string]: Color3}} = {
-	["Ignis Dark"]    = {},
-	["Ignis Crimson"] = {
-		HdrTop        = Color3.fromRGB(235,35,70),  HdrMid   = Color3.fromRGB(210,20,50),
-		HdrBot        = Color3.fromRGB(95,6,22),    HdrBevel = Color3.fromRGB(95,8,24),
-		TabActiveLeft = Color3.fromRGB(210,20,50),  SectionBevel = Color3.fromRGB(95,8,24),
-		SliderFill    = Color3.fromRGB(210,20,50),  NotifBar     = Color3.fromRGB(210,20,50),
-		WinBg         = Color3.fromRGB(14,12,16),   SidebarBg    = Color3.fromRGB(11,9,13),
-		ContentBg     = Color3.fromRGB(15,13,18),
-	},
-	["Ignis Ember"]   = {
-		HdrTop        = Color3.fromRGB(255,100,40), HdrMid   = Color3.fromRGB(230,70,20),
-		HdrBot        = Color3.fromRGB(120,30,5),   HdrBevel = Color3.fromRGB(110,28,8),
-		TabActiveLeft = Color3.fromRGB(230,70,20),  SectionBevel = Color3.fromRGB(110,28,8),
-		SliderFill    = Color3.fromRGB(230,70,20),  NotifBar     = Color3.fromRGB(230,70,20),
-	},
-}
 local T: {[string]: Color3} = {}
-do for k, v in pairs(BASE) do T[k] = v end end
+for k, v in pairs(BASE) do
+	T[k] = v
+end
+Library.T = T
 
--- ── Creator ───────────────────────────────────────────────────────────────
 local Creator = {
-	Reg  = {} :: {[Instance]: {[string]: string}},
+	Reg = {} :: {[Instance]: {[string]: string}},
 	Grad = {} :: {[Instance]: true},
+	UpdateTheme = function() end,
 }
+Library.Creator = Creator
+
 local function _applyToken(inst: Instance, prop: string, token: string)
 	local val = T[token]
-	if val then pcall(function() (inst :: any)[prop] = val end) end
+	if val then
+		pcall(function()
+			(inst :: any)[prop] = val
+		end)
+	end
 end
+
 local function _applyGrad(inst: UIGradient)
 	inst.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0,   T.HdrTop),
+		ColorSequenceKeypoint.new(0, T.HdrTop),
 		ColorSequenceKeypoint.new(0.3, T.HdrMid),
-		ColorSequenceKeypoint.new(1,   T.HdrBot),
+		ColorSequenceKeypoint.new(1, T.HdrBot),
 	})
 end
+
 function Creator.New(cls: string, props: {[string]: any}, children: {Instance}?): any
 	local inst = Instance.new(cls) :: any
-	local tag  = props.ThemeTag; local grad = props.GradTag
-	for k, v in pairs(props) do if k ~= "ThemeTag" and k ~= "GradTag" then inst[k] = v end end
-	if tag  then Creator.Reg[inst] = tag; for p, tk in pairs(tag) do _applyToken(inst, p, tk) end end
-	if grad then Creator.Grad[inst] = true; _applyGrad(inst) end
-	if children then for _, c in ipairs(children) do c.Parent = inst end end
+	local tag = props.ThemeTag
+	local grad = props.GradTag
+	for k, v in pairs(props) do
+		if k ~= "ThemeTag" and k ~= "GradTag" then
+			inst[k] = v
+		end
+	end
+	if tag then
+		Creator.Reg[inst] = tag
+		for p, tk in pairs(tag) do
+			_applyToken(inst, p, tk)
+		end
+	end
+	if grad then
+		Creator.Grad[inst] = true
+		_applyGrad(inst)
+	end
+	if children then
+		for _, c in ipairs(children) do
+			c.Parent = inst
+		end
+	end
 	return inst
 end
+
 function Creator.UpdateTheme()
+	if Library._updateTheme then
+		Library._updateTheme()
+		return
+	end
 	for inst, tag in pairs(Creator.Reg) do
-		if inst.Parent then for p, tk in pairs(tag) do _applyToken(inst, p, tk) end end
+		if inst.Parent then
+			for p, tk in pairs(tag) do
+				_applyToken(inst, p, tk)
+			end
+		end
 	end
 	for inst in pairs(Creator.Grad) do
-		if inst.Parent then _applyGrad(inst :: UIGradient) end
+		if inst.Parent then
+			_applyGrad(inst :: UIGradient)
+		end
 	end
 end
 
--- ── Library ───────────────────────────────────────────────────────────────
-local Library = {
-	Window     = nil :: any,
-	Options    = {} :: {[string]: any},
-	Version    = "3.3.0",
-	_theme     = "Ignis Dark",
-	_themeSubs = {} :: {(string) -> ()},
-}
-Library.__index = Library
-
-local function _applyTheme(name: string): boolean
-	local preset = THEME_PRESETS[name]; if not preset then return false end
-	Library._theme = name
-	for k, v in pairs(BASE)   do T[k] = v end
-	for k, v in pairs(preset) do T[k] = v end
-	Creator.UpdateTheme()
-	for _, fn in ipairs(Library._themeSubs) do xpcall(fn, debug.traceback, name) end
-	return true
-end
 function Library:SetTheme(name: string)
-	if not _applyTheme(name) then warn("[Ignis] Unknown theme: " .. name) end
-end
-function Library:GetTheme(): string return Library._theme end
-function Library:GetThemeNames(): {string}
-	local n = {}; for k in pairs(THEME_PRESETS) do table.insert(n, k) end
-	table.sort(n); return n
+	if Library.ThemeManager then
+		return Library.ThemeManager:SetTheme(name)
+	end
+	warn("[Ignis] ThemeManager not loaded; cannot switch to " .. tostring(name))
 end
 
--- ── Fonts ─────────────────────────────────────────────────────────────────
--- Resolved from L at load time. Call Library._refreshFonts() after any
--- LayoutManager:Set("Font*", ...) and before CreateWindow.
-local FONT_TITLE: Font; local FONT_TAB: Font; local FONT_UI: Font; local FONT_BOLD: Font
-local FONT_FREDOKA: Font; local FONT_DESC: Font
+function Library:GetTheme(): string
+	if Library.ThemeManager then
+		return Library.ThemeManager:GetTheme()
+	end
+	return Library._theme or "Ignis Dark"
+end
+
+function Library:GetThemeNames(): {string}
+	if Library.ThemeManager then
+		return Library.ThemeManager:GetThemes()
+	end
+	return { "Ignis Dark" }
+end
+
+function Library:GetThemeManager(): any
+	return Library.ThemeManager
+end
+
+function Library:GetAnimationManager(): any
+	return Library.AnimationManager
+end
+
+function Library:GetSaveManager(): any
+	return Library.SaveManager
+end
+
+function Library:GetLayoutManager(): any
+	return LayoutManager
+end
+
+local FONT_TITLE: Font
+local FONT_TAB: Font
+local FONT_UI: Font
+local FONT_BOLD: Font
+local FONT_FREDOKA: Font
+local FONT_DESC: Font
+
 local function _refreshFonts()
-	FONT_TITLE   = Font.fromEnum(L.FontTitle); FONT_TAB  = Font.fromEnum(L.FontTab)
-	FONT_UI      = Font.fromEnum(L.FontUI);    FONT_BOLD = Font.fromEnum(L.FontBold)
+	FONT_TITLE = Font.fromEnum(L.FontTitle)
+	FONT_TAB = Font.fromEnum(L.FontTab)
+	FONT_UI = Font.fromEnum(L.FontUI)
+	FONT_BOLD = Font.fromEnum(L.FontBold)
 	FONT_FREDOKA = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-	FONT_DESC    = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold, Enum.FontStyle.Italic)
+	FONT_DESC = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold, Enum.FontStyle.Italic)
 end
 _refreshFonts()
 Library._refreshFonts = _refreshFonts
-
--- ── AnimationManager ──────────────────────────────────────────────────────
-local AnimationManager: any = {
-	_preset = "Default", _speed = 1.0, _enabled = true, _scope = "everywhere",
-}
-function AnimationManager:SetEnabled(b: boolean)  _animEnabled = b; self._enabled = b end
-function AnimationManager:SetSpeed(s: number)
-	assert(type(s) == "number" and s > 0, "[Ignis:Anim] Speed must be positive")
-	self._speed = s; _rebuildAnim(self._preset, s, self._scope)
-end
-function AnimationManager:SetScope(scope: any)
-	local resolved = scope
-	if type(scope) == "table" then
-		-- Normalize array form {"Toggle","Slider"} to keyed {Toggle=true,Slider=true}
-		-- so _rebuildAnim's table check (scope[cat] ~= nil) works for both forms.
-		local hasNumKey = false
-		for k in pairs(scope) do if type(k) == "number" then hasNumKey = true; break end end
-		if hasNumKey then
-			local keyed: {[string]: boolean} = {}
-			for _, v in ipairs(scope :: any) do
-				local s = tostring(v)
-				if not _DEF_DUR[s] then warn("[Ignis:Anim] SetScope: unknown category '" .. s .. "'") end
-				keyed[s] = true
-			end
-			resolved = keyed
-		end
-	elseif type(scope) == "string" and scope ~= "everywhere" then
-		if not _DEF_DUR[scope] then
-			warn("[Ignis:Anim] SetScope: unknown category '" .. scope .. "'")
-		end
-	end
-	self._scope = resolved; _rebuildAnim(self._preset, self._speed, resolved)
-end
-function AnimationManager:SetPreset(name: string)
-	if name == "None" then _animEnabled = false; self._enabled = false; self._preset = name; return end
-	local preset = _ANIM_PRESETS[name]
-	if not preset then warn("[Ignis:Anim] Unknown preset: " .. name); return end
-	_animEnabled = true; self._enabled = true; self._preset = name
-	_rebuildAnim(name, self._speed, self._scope)
-end
-function AnimationManager:AddPreset(name: string, cats: {[string]: any})
-	assert(type(name) == "string", "[Ignis:Anim] Name must be a string")
-	_ANIM_PRESETS[name] = cats
-end
-function AnimationManager:RemovePreset(name: string)
-	local locked = { Default=true, Snappy=true, Smooth=true, Bounce=true, None=true }
-	if locked[name] then warn("[Ignis:Anim] Cannot remove built-in preset"); return end
-	_ANIM_PRESETS[name] = nil
-end
-function AnimationManager:GetPresetNames(): {string}
-	local n = {}; for k in pairs(_ANIM_PRESETS) do table.insert(n, k) end; table.sort(n); return n
-end
-function AnimationManager:SetCategory(cat: string, info: TweenInfo) Anim[cat] = info end
-function AnimationManager:GetCategory(cat: string): TweenInfo?       return Anim[cat] end
-function Library:GetAnimationManager(): any return AnimationManager end
-
--- ── ThemeManager ──────────────────────────────────────────────────────────
-local ThemeManager: any = {}
-function ThemeManager:SetTheme(name: string)
-	if not _applyTheme(name) then warn("[Ignis:Theme] Unknown theme: " .. name) end
-end
-function ThemeManager:GetTheme(): string return Library._theme end
-function ThemeManager:GetThemes(): {string}
-	local n = {}; for k in pairs(THEME_PRESETS) do table.insert(n, k) end; table.sort(n); return n
-end
-function ThemeManager:AddTheme(name: string, overrides: {[string]: Color3})
-	assert(type(name) == "string", "[Ignis:Theme] Name must be a string")
-	THEME_PRESETS[name] = overrides
-end
-function ThemeManager:RemoveTheme(name: string)
-	local locked = { ["Ignis Dark"]=true, ["Ignis Crimson"]=true, ["Ignis Ember"]=true }
-	if locked[name] then warn("[Ignis:Theme] Cannot remove built-in theme"); return end
-	if Library._theme == name then
-		warn("[Ignis:Theme] Cannot remove active theme '" .. name .. "'; call SetTheme() with a different theme first")
-		return
-	end
-	THEME_PRESETS[name] = nil
-end
-function ThemeManager:GetToken(t: string): Color3?       return T[t] end
-function ThemeManager:SetToken(t: string, c: Color3)     T[t] = c; Creator.UpdateTheme() end
-function ThemeManager:Reset()                             _applyTheme(Library._theme) end
-function ThemeManager:OnChanged(fn: (string) -> ()): () -> ()
-	table.insert(Library._themeSubs, fn)
-	return function()
-		for i, f in ipairs(Library._themeSubs) do
-			if f == fn then table.remove(Library._themeSubs, i); break end
-		end
-	end
-end
-function Library:GetThemeManager(): any  return ThemeManager  end
-function Library:GetLayoutManager(): any return LayoutManager end
 
 -- ── Notification system ───────────────────────────────────────────────────
 local _nGui: ScreenGui? = nil; local _nHolder: Frame? = nil
@@ -1910,135 +1795,71 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		return Tab
 	end -- Window:Tab
 
-	-- ── SaveManager ───────────────────────────────────────────────────────
-	local SaveManager: any = {
-		_folder   = "IgnisConfigs", _key      = "default",
-		_autoStop = nil :: any,
-		_saveSubs = {} :: {() -> ()}, _loadSubs = {} :: {() -> ()},
-	}
-	function SaveManager:SetFolder(folder: string) self._folder = folder end
-	function SaveManager:SetKey(key: string)       self._key    = key    end
-
-	-- EnumItems (Keybind KeyCodes) are serialized as their .Name string so that
-	-- HttpService:JSONEncode can encode them and SetData can restore them.
-	function SaveManager:GetData(): {[string]: any}
-		local out: {[string]: any} = {}
-		for id, el in pairs(Library.Options) do
-			local ok, v = pcall(function() return el:Get() end)
-			if ok and v ~= nil then
-				if typeof(v) == "EnumItem" then
-				out[id] = (v :: EnumItem).Name
-				else
-				out[id] = v
-				end
-			end
+	function Window:GetSaveManager(): any
+		return Library:GetSaveManager()
+	end
+	function Window:GetThemeManager(): any
+		return Library:GetThemeManager()
+	end
+	function Window:GetAnimManager(): any
+		return Library:GetAnimationManager()
+	end
+	function Window:GetLayoutManager(): any
+		return Library:GetLayoutManager()
+	end
+	function Window:SaveSettings(): {[string]: any}
+		if Library.SaveManager then
+			return Library.SaveManager:GetData()
 		end
-		return out
+		return {}
 	end
-	function SaveManager:SetData(data: {[string]: any})
-		for id, v in pairs(data) do
-			local el = Library.Options[id]
-			if el and el.Set then pcall(function() el:Set(v) end) end
-		end
-		for _, fn in ipairs(self._loadSubs) do xpcall(fn, debug.traceback) end
-	end
-	function SaveManager:Save(key: string?): boolean
-		local genv = _getGenv()
-		local wf   = rawget(genv, "writefile"); if not wf then return false end
-		local mf   = rawget(genv, "makefolder"); if mf then pcall(mf, self._folder) end
-		local k    = key or self._key
-		local ok, enc = pcall(function() return HttpService:JSONEncode(self:GetData()) end)
-		if not ok then return false end
-		local ok2 = pcall(wf, self._folder .. "/" .. k .. ".json", enc)
-		if ok2 then
-			for _, fn in ipairs(self._saveSubs) do xpcall(fn, debug.traceback) end
-		end
-		return ok2
-	end
-	function SaveManager:Load(key: string?): boolean
-		local genv = _getGenv()
-		local rf   = rawget(genv, "readfile"); if not rf then return false end
-		local isf  = rawget(genv, "isfile")
-		local k    = key or self._key
-		local path = self._folder .. "/" .. k .. ".json"
-		if isf then local ok, res = pcall(isf, path); if not ok or not res then return false end end
-		local ok, raw = pcall(rf, path)
-		if not ok or type(raw) ~= "string" or raw == "" then return false end
-		local ok2, data = pcall(function() return HttpService:JSONDecode(raw) end)
-		if not ok2 or type(data) ~= "table" then return false end
-		self:SetData(data); return true
-	end
-	function SaveManager:Delete(key: string?): boolean
-		local genv = _getGenv()
-		local df   = rawget(genv, "delfile") or rawget(genv, "deletefile")
-		if not df then return false end
-		local k = key or self._key
-		return pcall(df, self._folder .. "/" .. k .. ".json")
-	end
-
-	-- AutoSave: saves immediately on start, then every interval seconds.
-	-- Stop lag is at most min(0.5, interval) — polls in small steps rather
-	-- than sleeping a full interval before checking the stop flag.
-	function SaveManager:AutoSave(interval: number)
-		self:StopAutoSave()
-		local running = true
-		self._autoStop = function() running = false end
-		task.spawn(function()
-			while running do
-				self:Save()
-				local elapsed = 0
-				local step    = math.min(0.5, interval)
-				while running and elapsed < interval do
-				task.wait(step); elapsed += step
-				end
-			end
-		end)
-	end
-	function SaveManager:StopAutoSave()
-		if self._autoStop then self._autoStop(); self._autoStop = nil end
-	end
-	function SaveManager:OnSave(fn: () -> ()): () -> ()
-		table.insert(self._saveSubs, fn)
-		return function()
-			for i, f in ipairs(self._saveSubs) do
-				if f == fn then table.remove(self._saveSubs, i); break end
-			end
+	function Window:LoadSettings(d: {[string]: any})
+		if Library.SaveManager then
+			Library.SaveManager:SetData(d)
 		end
 	end
-	function SaveManager:OnLoad(fn: () -> ()): () -> ()
-		table.insert(self._loadSubs, fn)
-		return function()
-			for i, f in ipairs(self._loadSubs) do
-				if f == fn then table.remove(self._loadSubs, i); break end
-			end
-		end
-	end
-
-	-- ── Window API ─────────────────────────────────────────────────────────
-	function Window:GetSaveManager(): any   return SaveManager      end
-	function Window:GetThemeManager(): any  return ThemeManager     end
-	function Window:GetAnimManager(): any   return AnimationManager end
-	function Window:GetLayoutManager(): any return LayoutManager    end
-
-	function Window:SaveSettings(): {[string]: any}  return SaveManager:GetData() end
-	function Window:LoadSettings(d: {[string]: any}) SaveManager:SetData(d)       end
 	function Window:SaveToFile(folder: string, name: string): boolean
-		local prev = SaveManager._folder; SaveManager._folder = folder
-		local ok = SaveManager:Save(name); SaveManager._folder = prev; return ok
+		if not Library.SaveManager then
+			return false
+		end
+		local prev = Library.SaveManager._folder
+		Library.SaveManager._folder = folder
+		local ok = Library.SaveManager:Save(name)
+		Library.SaveManager._folder = prev
+		return ok
 	end
 	function Window:LoadFromFile(folder: string, name: string): boolean
-		local prev = SaveManager._folder; SaveManager._folder = folder
-		local ok = SaveManager:Load(name); SaveManager._folder = prev; return ok
+		if not Library.SaveManager then
+			return false
+		end
+		local prev = Library.SaveManager._folder
+		Library.SaveManager._folder = folder
+		local ok = Library.SaveManager:Load(name)
+		Library.SaveManager._folder = prev
+		return ok
 	end
-	function Window:Notify(opts: NotifOpts) Library:Notify(opts) end
-	function Window:SetTheme(name: string)  Library:SetTheme(name) end
+	function Window:Notify(opts: NotifOpts)
+		Library:Notify(opts)
+	end
+	function Window:SetTheme(name: string)
+		Library:SetTheme(name)
+	end
 	function Window:Destroy()
-		SaveManager:StopAutoSave(); maid:Destroy()
-		if gui and gui.Parent then gui:Destroy() end
-		Library.Window = nil; Library.Options = {}
-		_windowBuilt = false; _liveRefs = {}
+		if Library.SaveManager then
+			Library.SaveManager:StopAutoSave()
+		end
+		maid:Destroy()
+		if gui and gui.Parent then
+			gui:Destroy()
+		end
+		Library.Window = nil
+		Library.Options = {}
+		_windowBuilt = false
+		_liveRefs = {}
 	end
-	function Window:IsDestroyed(): boolean return gui == nil or not gui.Parent end
+	function Window:IsDestroyed(): boolean
+		return gui == nil or not gui.Parent
+	end
 
 	-- Close button hides window (shows ReopenPill to reopen); Destroy() still available via API
 	maid:Give(closeBtn.MouseButton1Click:Connect(function() setMin(true) end))

@@ -1,16 +1,16 @@
 # Ignis — Development Plan
 
-## Current State (v3.3.0)
+## Current State (v3.4.0)
 - Single-file library (`Ignis.lua`) — loadstring delivery, no dependencies
 - Window → Tab → Section → Element hierarchy fully working
 - Elements: Toggle, Slider, Dropdown, Button (normal + primary), Input, Keybind, Label, Paragraph, ColorPicker
 - Visuals: restored 1:1 to original dark blue-black palette — opaque rows, dark sidebar tabs with red accent strip, visible section boxes with bevel strips
-- Three built-in theme presets: Ignis Dark, Ignis Crimson, Ignis Ember
-- Animation, theme, and save systems baked into `Ignis.lua` (to be extracted)
+- Three companion managers extracted: `AnimationManager.lua`, `ThemeManager.lua`, `SaveManager.lua`
+- Core library runs fully standalone with instant property fallback and default palette
 
 ---
 
-## Phase 1 — Standalone Manager Architecture
+## Phase 1 — Standalone Manager Architecture (Completed)
 
 The core library stays framework-only. Heavy systems move to separate loadstring modules.
 Each manager receives the `Library` table and patches in its capabilities. None are required.
