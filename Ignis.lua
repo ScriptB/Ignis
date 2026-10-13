@@ -1,7 +1,7 @@
 --!strict
 --[[
 ╔══════════════════════════════════════════════════════════════════╗
-║  IGNIS  ·  v2.5.3  ·  Script UI Library                         ║
+║  IGNIS  ·  v3.0.0  ·  Script UI Library                         ║
 ║  Successor to Ember. Built for live Roblox environments.         ║
 ║  Architecture: Library → Window → Tab → Section → Element       ║
 ║  Managers: AnimationManager · ThemeManager · LayoutManager       ║
@@ -63,47 +63,48 @@ end
 -- Set/Apply warn if called after CreateWindow — changes won't affect built UI.
 
 local L = {
-	-- Window
-	WindowW                  = 620,
-	WindowH                  = 460,
-	HeaderH                  = 52,
-	SidebarW                 = 140,
-	TitleSize                = 28,
+	-- Master / window
+	MasterW                  = 1130, -- total width including both external sidebars
+	MasterH                  = 670,  -- total height of the master container
+	WindowW                  = 740,  -- CenterWindow width
+	WindowH                  = 660,  -- CenterWindow height
+	HeaderH                  = 64,
+	-- External sidebars
+	SidebarW                 = 175,  -- width of each external sidebar
+	SidebarH                 = 580,  -- height of each external sidebar
+	SidebarTopOffset         = 70,   -- Y offset of sidebar top from MasterContainer top
+	SidebarXOffset           = 388,  -- horizontal offset from master center to sidebar anchor edge
+	-- Bottom bar
+	BottomBarH               = 54,
+	-- Section accordion bar
+	SectionBarH              = 38,   -- height of the collapsible section header bar
+	-- Title / subtitle
+	TitleSize                = 34,
 	SubtitleSize             = 11,
 	TitleStrokeW             = 2.2,
-	HeaderBtnSize            = 28,   -- close / minimize button square side
 	HeaderBtnRightPad        = 10,   -- right margin from window edge to close button
-	HeaderBtnGap             = 6,    -- gap between close and minimize button
-	HeaderTitlePadL          = 16,   -- left margin of title text in header
-	SubtitlePadL             = 18,   -- left margin of subtitle text in header
-	SubtitleBottomPad        = 8,    -- subtitle Y offset above header bottom edge
-	CloseIconSize            = 14,
-	MinIconSize              = 12,
-	-- Sidebar / tabs
-	TabH                     = 36,
-	TabTextSize              = 13,
-	TabAccentW               = 3,
-	TabLabelIndent           = 12,   -- left indent of text label inside a tab button
+	SubtitleBottomPad        = 8,
+	-- Tabs
+	TabH                     = 58,
+	TabTextSize              = 16,
 	TabListPad               = 2,
-	SidebarPadTop            = 6,
-	SidebarPadH              = 4,
 	-- Section / page
-	SectionHeaderH           = 26,
+	SectionHeaderH           = 38,   -- alias kept for compat (same as SectionBarH)
 	SectionHeaderTextSize    = 10,
-	SectionLabelIndent       = 12,   -- left indent of text inside the section header strip
+	SectionLabelIndent       = 12,
 	BevelSize                = 4,
 	PageSectionGap           = 6,
 	PagePad                  = 8,
 	RowListPad               = 1,
 	-- Row
-	RowH                     = 44,
-	RowHDesc                 = 56,
-	RowHLabel                = 36,
+	RowH                     = 64,
+	RowHDesc                 = 76,
+	RowHLabel                = 44,
 	RowIndent                = 10,
-	LabelPad                 = 6,    -- added to text size to get label frame height
-	ElemRightPad             = 10,   -- right margin for right-anchored element widgets (toggle, pill, value label, chevron, etc.)
+	LabelPad                 = 6,
+	ElemRightPad             = 10,
 	-- Paragraph
-	ParagraphItemGap         = 4,    -- UIListLayout gap between title and body inside a Paragraph
+	ParagraphItemGap         = 4,
 	-- Slider
 	SliderRowH               = 56,
 	SliderRowHDesc           = 68,
@@ -111,39 +112,39 @@ local L = {
 	SliderKnobS              = 13,
 	SliderTrackY             = 38,
 	SliderTrackYD            = 50,
-	SliderTrackRightPad      = 20,   -- pixels trimmed from slider track right edge (leaves room for value label)
-	SliderValLabelW          = 64,   -- width of the value readout label on the right
-	SliderValLabelH          = 16,   -- height of the value readout label
-	SliderValLabelY          = 2,    -- Y offset of the value readout label from rowInner top
+	SliderTrackRightPad      = 20,
+	SliderValLabelW          = 64,
+	SliderValLabelH          = 16,
+	SliderValLabelY          = 2,
 	-- Input
 	InputRowH                = 56,
 	InputRowHDesc            = 72,
 	InputBoxH                = 22,
-	InputBoxBottomPad        = 7,    -- pixels from rowInner bottom to input box bottom
+	InputBoxBottomPad        = 7,
 	InputPadH                = 6,
 	-- Toggle
 	ToggleW                  = 46,
 	ToggleH                  = 22,
 	ToggleKnobS              = 16,
-	ToggleKnobMargin         = 3,    -- pixels between knob edge and track wall at either end
+	ToggleKnobMargin         = 3,
 	-- Dropdown
 	DropdownOptH             = 28,
-	DropdownOptPadL          = 10,   -- left padding inside each dropdown option button
-	DropdownChevronSize      = 10,   -- ∨ text size
-	DropdownChevronContainerS = 12,  -- ∨ container square side
-	DropdownChevronRightPad  = 8,    -- right margin of ∨ from rowInner right edge
-	DropdownLabelH           = 14,   -- height of the current-value display label
-	DropdownLabelRightPad    = 22,   -- right margin of current-value display label
+	DropdownOptPadL          = 10,
+	DropdownChevronSize      = 10,
+	DropdownChevronContainerS = 12,
+	DropdownChevronRightPad  = 8,
+	DropdownLabelH           = 14,
+	DropdownLabelRightPad    = 22,
 	-- Button chevron
-	BtnChevronSize           = 18,   -- › text size
-	BtnChevronW              = 16,   -- › container width
-	BtnChevronH              = 20,   -- › container height
+	BtnChevronSize           = 18,
+	BtnChevronW              = 16,
+	BtnChevronH              = 20,
 	-- Keybind pill
 	KeybindPillW             = 72,
 	KeybindPillH             = 22,
 	-- Stroke widths
-	StrokeRoot               = 2.8,
-	StrokeHdr                = 2.8,
+	StrokeRoot               = 3.6,
+	StrokeHdr                = 3.6,
 	StrokeClose              = 1.8,
 	StrokeSidebar            = 1.5,
 	StrokeTabBtn             = 1.2,
@@ -155,7 +156,7 @@ local L = {
 	StrokeNotif              = 1.5,
 	-- Fonts (Enum.Font members)
 	FontTitle                = Enum.Font.LuckiestGuy,
-	FontTab                  = Enum.Font.FredokaOne,
+	FontTab                  = Enum.Font.LuckiestGuy,
 	FontUI                   = Enum.Font.GothamMedium,
 	FontBold                 = Enum.Font.GothamBold,
 	-- Element text sizes
@@ -169,10 +170,10 @@ local L = {
 	NotifEdge                = 16,
 	NotifBarW                = 3,
 	NotifInnerPadL           = 12,
-	NotifInnerPadR           = 2,    -- right padding of notification inner frame
-	NotifTitleY              = 10,   -- Y offset of title text within notification card
-	NotifMsgGapY             = 2,    -- vertical gap between title and message text
-	NotifMsgBottomPad        = 4,    -- bottom padding of message label within card
+	NotifInnerPadR           = 2,
+	NotifTitleY              = 10,
+	NotifMsgGapY             = 2,
+	NotifMsgBottomPad        = 4,
 	-- Misc
 	ScrollBarThick           = 4,
 }
@@ -187,7 +188,7 @@ local _windowBuilt = false
 -- called post-build. All other tokens still require a Destroy + CreateWindow cycle.
 local _liveRefs: {[string]: any} = {}
 local _LIVE_TOKENS: {[string]: true} = {
-	WindowW=true, WindowH=true, HeaderH=true, SidebarW=true,
+	WindowW=true, WindowH=true, HeaderH=true,
 }
 local function _applyLiveToken(key: string)
 	local r = _liveRefs
@@ -196,12 +197,6 @@ local function _applyLiveToken(key: string)
 		r.root.Size = UDim2.fromOffset(L.WindowW, L.WindowH)
 	elseif key == "HeaderH" then
 		r.header.Size = UDim2.new(1, 0, 0, L.HeaderH)
-		r.body.Position = UDim2.new(0, 0, 0, L.HeaderH)
-		r.body.Size = UDim2.new(1, 0, 1, -L.HeaderH)
-	elseif key == "SidebarW" then
-		r.sidebar.Size = UDim2.new(0, L.SidebarW, 1, 0)
-		r.content.Position = UDim2.new(0, L.SidebarW, 0, 0)
-		r.content.Size = UDim2.new(1, -L.SidebarW, 1, 0)
 	end
 end
 
@@ -327,44 +322,44 @@ end
 
 -- ── Theme tokens ──────────────────────────────────────────────────────────
 local BASE: {[string]: Color3} = {
-	WinBg          = Color3.fromRGB(13,14,16),
-	HdrTop         = Color3.fromRGB(255,60,60),
+	WinBg          = Color3.fromRGB(18,22,18),   -- dark green-black (template CenterWindow)
+	HdrTop         = Color3.fromRGB(248,55,55),
 	HdrMid         = Color3.fromRGB(224,32,32),
 	HdrBot         = Color3.fromRGB(110,10,10),
-	HdrBevel       = Color3.fromRGB(100,12,12),
+	HdrBevel       = Color3.fromRGB(115,14,14),  -- dark red accent strips
 	HdrBorder      = Color3.fromRGB(0,0,0),
-	SidebarBg      = Color3.fromRGB(10,11,14),
+	SidebarBg      = Color3.fromRGB(10,12,10),   -- near-black for BottomBar
 	SidebarBorder  = Color3.fromRGB(0,0,0),
-	TabHoverBg     = Color3.fromRGB(22,24,30),
-	TabActiveBg    = Color3.fromRGB(26,28,36),
-	TabActiveLeft  = Color3.fromRGB(224,32,32),
-	TabText        = Color3.fromRGB(140,144,164),
-	TabTextActive  = Color3.fromRGB(235,238,248),
-	ContentBg      = Color3.fromRGB(14,15,18),
-	SectionBg      = Color3.fromRGB(18,20,25),
+	TabHoverBg     = Color3.fromRGB(248,55,55),  -- lighter red on hover (same as HdrTop)
+	TabActiveBg    = Color3.fromRGB(224,32,32),  -- full red for tab buttons
+	TabActiveLeft  = Color3.fromRGB(115,14,14),
+	TabText        = Color3.fromRGB(255,255,255),
+	TabTextActive  = Color3.fromRGB(255,255,255),
+	ContentBg      = Color3.fromRGB(18,22,18),
+	SectionBg      = Color3.fromRGB(22,28,22),
 	SectionBorder  = Color3.fromRGB(0,0,0),
-	SectionBevel   = Color3.fromRGB(100,12,12),
-	RowBg          = Color3.fromRGB(15,17,21),
-	RowBgHover     = Color3.fromRGB(20,22,28),
-	RowBorder      = Color3.fromRGB(30,34,44),
+	SectionBevel   = Color3.fromRGB(115,14,14),
+	RowBg          = Color3.fromRGB(12,16,12),
+	RowBgHover     = Color3.fromRGB(20,26,20),
+	RowBorder      = Color3.fromRGB(30,40,30),
 	RowBorderOuter = Color3.fromRGB(0,0,0),
-	Text           = Color3.fromRGB(232,236,248),
-	TextSub        = Color3.fromRGB(148,154,175),
-	TextHint       = Color3.fromRGB(85,90,108),
+	Text           = Color3.fromRGB(255,255,255),
+	TextSub        = Color3.fromRGB(180,190,180),
+	TextHint       = Color3.fromRGB(100,115,100),
 	ToggleOn       = Color3.fromRGB(38,212,78),
 	ToggleOnDark   = Color3.fromRGB(18,148,50),
-	ToggleOff      = Color3.fromRGB(40,44,56),
+	ToggleOff      = Color3.fromRGB(40,50,40),
 	ToggleKnob     = Color3.fromRGB(255,255,255),
-	SliderTrack    = Color3.fromRGB(26,29,38),
+	SliderTrack    = Color3.fromRGB(26,33,26),
 	SliderFill     = Color3.fromRGB(224,32,32),
 	SliderKnob     = Color3.fromRGB(255,255,255),
-	InputBg        = Color3.fromRGB(8,9,12),
-	InputBorder    = Color3.fromRGB(34,38,50),
-	InputText      = Color3.fromRGB(218,222,238),
-	NotifBg        = Color3.fromRGB(18,20,25),
+	InputBg        = Color3.fromRGB(8,10,8),
+	InputBorder    = Color3.fromRGB(34,44,34),
+	InputText      = Color3.fromRGB(218,228,218),
+	NotifBg        = Color3.fromRGB(18,22,18),
 	NotifBorder    = Color3.fromRGB(0,0,0),
 	NotifBar       = Color3.fromRGB(224,32,32),
-	ScrollBar      = Color3.fromRGB(48,52,66),
+	ScrollBar      = Color3.fromRGB(48,60,48),
 }
 local THEME_PRESETS: {[string]: {[string]: Color3}} = {
 	["Ignis Dark"]    = {},
@@ -700,19 +695,34 @@ function Library:CreateWindow(cfg: WindowCfg?)
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	SafeParentGui(gui)
 
+	-- MasterContainer: transparent wrapper that positions all three panels
+	local master = Creator.New("Frame", {
+		Name = "MasterContainer",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.fromOffset(L.MasterW, L.MasterH),
+		BackgroundTransparency = 1, ClipsDescendants = false,
+	}) :: Frame
+	master.Parent = gui
+
+	-- CenterWindow: translucent dark green-black main panel
 	local root = Creator.New("Frame", {
-		Name = "IgnisRoot", AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.fromOffset(W, H),
-		ClipsDescendants = false, ThemeTag = { BackgroundColor3 = "WinBg" },
+		Name = "CenterWindow",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 0),
+		Size = UDim2.fromOffset(W, H),
+		BackgroundTransparency = 0.28, ClipsDescendants = false,
+		ThemeTag = { BackgroundColor3 = "WinBg" },
 	}) :: Frame
 	Creator.New("UIStroke", {
 		Thickness = L.StrokeRoot, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "HdrBorder" }, Parent = root,
 	})
-	root.Parent = gui
+	root.Parent = master
 
+	-- HeaderBar
 	local hdr = Creator.New("Frame", {
-		Name = "Header", Size = UDim2.new(1, 0, 0, HDR_H),
+		Name = "HeaderBar", Size = UDim2.new(1, 0, 0, HDR_H),
 		ThemeTag = { BackgroundColor3 = "HdrMid" }, Parent = root,
 	}) :: Frame
 	Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = hdr })
@@ -721,101 +731,155 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "HdrBorder" }, Parent = hdr,
 	})
 	Creator.New("Frame", {
-		Name = "_hbevelL", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
-		ZIndex = 3, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = hdr,
+		Name = "LeftDarkAccent", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
+		ZIndex = 2, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = hdr,
 	})
 	Creator.New("Frame", {
-		Name = "_hbevelB", AnchorPoint = Vector2.new(0, 1),
+		Name = "BottomDarkAccent", AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
-		BorderSizePixel = 0, ZIndex = 3, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = hdr,
+		BorderSizePixel = 0, ZIndex = 2, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = hdr,
 	})
-	-- Title right reserve accounts for both buttons plus gaps
-	local titleRightPad = (L.HeaderBtnSize + L.HeaderBtnGap) * 2
 	Creator.New("TextLabel", {
-		Name = "Title", Text = title, FontFace = FONT_TITLE,
-		TextSize = L.TitleSize, TextXAlignment = Enum.TextXAlignment.Left,
-		Position = UDim2.new(0, L.HeaderTitlePadL, 0, 0),
-		Size = UDim2.new(1, -titleRightPad, 1, 0),
-		BackgroundTransparency = 1, ZIndex = 4, ThemeTag = { TextColor3 = "Text" }, Parent = hdr,
+		Name = "TitleLabel", Text = title, FontFace = FONT_TITLE,
+		TextSize = L.TitleSize, TextXAlignment = Enum.TextXAlignment.Center,
+		Position = UDim2.new(0, 20, 0, 0), Size = UDim2.new(1, -90, 1, 0),
+		BackgroundTransparency = 1, ZIndex = 3, ThemeTag = { TextColor3 = "Text" }, Parent = hdr,
 	}, {
-		Creator.New("UIStroke", { Color = Color3.new(0,0,0), Thickness = L.TitleStrokeW,
+		Creator.New("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = L.TitleStrokeW,
 			LineJoinMode = Enum.LineJoinMode.Miter }),
 	})
 	if subtitle ~= "" then
 		Creator.New("TextLabel", {
 			Name = "SubTitle", Text = subtitle, FontFace = FONT_UI,
-			TextSize = L.SubtitleSize, TextXAlignment = Enum.TextXAlignment.Left,
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(0, L.SubtitlePadL, 1, -L.SubtitleBottomPad),
+			TextSize = L.SubtitleSize, TextXAlignment = Enum.TextXAlignment.Center,
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -L.SubtitleBottomPad),
 			Size = UDim2.new(0.6, 0, 0, L.SubtitleSize + L.LabelPad),
-			BackgroundTransparency = 1, ZIndex = 4, ThemeTag = { TextColor3 = "TextSub" }, Parent = hdr,
+			BackgroundTransparency = 1, ZIndex = 3, ThemeTag = { TextColor3 = "TextSub" }, Parent = hdr,
 		})
 	end
 
-	local BS = L.HeaderBtnSize
+	-- Close button (X, top-right of header)
 	local closeBtn = Creator.New("TextButton", {
-		Name = "Close", Text = "✕", FontFace = FONT_BOLD, TextSize = L.CloseIconSize,
+		Name = "CloseButton", Text = "X", FontFace = FONT_TITLE, TextSize = 26,
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -L.HeaderBtnRightPad, 0.5, 0),
-		Size = UDim2.fromOffset(BS, BS), AutoButtonColor = false, ZIndex = 4,
-		ThemeTag = { BackgroundColor3 = "HdrBevel", TextColor3 = "Text" }, Parent = hdr,
+		Size = UDim2.fromOffset(44, 44), AutoButtonColor = false, ZIndex = 4,
+		ThemeTag = { BackgroundColor3 = "HdrMid", TextColor3 = "Text" }, Parent = hdr,
 	}) :: TextButton
+	Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = closeBtn })
 	Creator.New("UIStroke", {
 		Thickness = L.StrokeClose, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "HdrBorder" }, Parent = closeBtn,
 	})
-	local minBtn = Creator.New("TextButton", {
-		Name = "Minimize", Text = "—", FontFace = FONT_BOLD, TextSize = L.MinIconSize,
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -(L.HeaderBtnRightPad + BS + L.HeaderBtnGap), 0.5, 0),
-		Size = UDim2.fromOffset(BS, BS), AutoButtonColor = false, ZIndex = 4,
-		ThemeTag = { BackgroundColor3 = "HdrBevel", TextColor3 = "Text" }, Parent = hdr,
-	}) :: TextButton
-	Creator.New("UIStroke", {
-		Thickness = L.StrokeClose, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "HdrBorder" }, Parent = minBtn,
+	Creator.New("Frame", {
+		Name = "LeftDarkAccent", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
+		ZIndex = 5, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = closeBtn,
+	})
+	Creator.New("Frame", {
+		Name = "BottomDarkAccent", AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
+		BorderSizePixel = 0, ZIndex = 5, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = closeBtn,
 	})
 
-	local body = Instance.new("Frame")
-	body.Name = "Body"; body.Position = UDim2.new(0, 0, 0, HDR_H)
-	body.Size = UDim2.new(1, 0, 1, -HDR_H)
-	body.BackgroundTransparency = 1; body.ClipsDescendants = true; body.Parent = root
+	-- SectionHeader (collapsible accordion bar below HeaderBar)
+	local sectionOpen = true
+	local sectionHeader = Creator.New("TextButton", {
+		Name = "SectionHeader",
+		Position = UDim2.new(0, 0, 0, HDR_H),
+		Size = UDim2.new(1, 0, 0, L.SectionBarH),
+		BackgroundTransparency = 1, Text = "", AutoButtonColor = false,
+		ZIndex = 2, Parent = root,
+	}) :: TextButton
+	local secContent = Instance.new("Frame")
+	secContent.Name = "Content"; secContent.BackgroundTransparency = 1
+	secContent.Size = UDim2.new(1, 0, 1, 0); secContent.Parent = sectionHeader
+	local secTitle = Creator.New("TextLabel", {
+		Name = "SectionTitle", Text = "", FontFace = FONT_UI, TextSize = L.ElemNameSize,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Position = UDim2.new(0, L.SectionLabelIndent, 0, 0),
+		Size = UDim2.new(1, -L.SectionLabelIndent - 30, 1, 0),
+		BackgroundTransparency = 1, ZIndex = 3,
+		ThemeTag = { TextColor3 = "TextSub" }, Parent = secContent,
+	}) :: TextLabel
+	local chevronFrame = Instance.new("Frame")
+	chevronFrame.Name = "ChevronIcon"; chevronFrame.BackgroundTransparency = 1
+	chevronFrame.AnchorPoint = Vector2.new(1, 0.5)
+	chevronFrame.Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0)
+	chevronFrame.Size = UDim2.fromOffset(16, 16); chevronFrame.Parent = secContent
+	local rotBox = Creator.New("Frame", {
+		Name = "RotatedBox", AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.fromOffset(8, 8),
+		Rotation = 45, BorderSizePixel = 0,
+		ThemeTag = { BackgroundColor3 = "TextHint" }, Parent = chevronFrame,
+	})
 
-	local sidebar = Creator.New("Frame", {
-		Name = "Sidebar", Size = UDim2.new(0, SIDE_W, 1, 0),
-		ThemeTag = { BackgroundColor3 = "SidebarBg" }, Parent = body,
+	-- PagesHolder (scrollable content area, between SectionHeader and BottomBar)
+	local pagesTop = HDR_H + L.SectionBarH
+	local pagesH   = H - pagesTop - L.BottomBarH
+	local pagesHolder = Instance.new("Frame")
+	pagesHolder.Name = "PagesHolder"
+	pagesHolder.Position = UDim2.new(0, 0, 0, pagesTop)
+	pagesHolder.Size = UDim2.new(1, 0, 0, pagesH)
+	pagesHolder.BackgroundTransparency = 1; pagesHolder.ClipsDescendants = true
+	pagesHolder.Parent = root
+
+	-- BottomBar (search + resize grip)
+	local bottomBar = Creator.New("Frame", {
+		Name = "BottomBar",
+		AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, L.BottomBarH),
+		ThemeTag = { BackgroundColor3 = "SidebarBg" }, Parent = root,
 	}) :: Frame
 	Creator.New("UIStroke", {
 		Thickness = L.StrokeSidebar, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "SidebarBorder" }, Parent = sidebar,
+		LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "SidebarBorder" }, Parent = bottomBar,
 	})
-	Creator.New("Frame", {
-		Name = "_bevelL", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
-		ZIndex = 3, ThemeTag = { BackgroundColor3 = "SectionBevel" }, Parent = sidebar,
+	Creator.New("TextLabel", {
+		Name = "SearchLabel", Text = "Search", FontFace = FONT_UI, TextSize = L.ElemDescSize,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(0, 56, 1, 0),
+		BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextHint" }, Parent = bottomBar,
 	})
-	Creator.New("Frame", {
-		Name = "_bevelB", AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
-		BorderSizePixel = 0, ZIndex = 3, ThemeTag = { BackgroundColor3 = "SectionBevel" }, Parent = sidebar,
-	})
-	local sideLayout = Instance.new("UIListLayout")
-	sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	sideLayout.Padding = UDim.new(0, L.TabListPad); sideLayout.Parent = sidebar
-	local sidePad = Instance.new("UIPadding")
-	sidePad.PaddingTop   = UDim.new(0, L.SidebarPadTop)
-	sidePad.PaddingLeft  = UDim.new(0, L.SidebarPadH)
-	sidePad.PaddingRight = UDim.new(0, L.SidebarPadH); sidePad.Parent = sidebar
+	local searchContainer = Instance.new("Frame")
+	searchContainer.Name = "SearchFieldContainer"
+	searchContainer.Position = UDim2.new(0, 66, 0.5, 0); searchContainer.AnchorPoint = Vector2.new(0, 0.5)
+	searchContainer.Size = UDim2.new(1, -80, 0, 22)
+	searchContainer.BackgroundTransparency = 1; searchContainer.Parent = bottomBar
+	local searchInput = Creator.New("TextBox", {
+		Name = "SearchInput", Text = "", PlaceholderText = "Search features\226\128\166",
+		FontFace = FONT_UI, TextSize = L.ElemDescSize,
+		TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false,
+		Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1,
+		ThemeTag = { TextColor3 = "Text", PlaceholderColor3 = "TextHint" },
+		Parent = searchContainer,
+	}) :: TextBox
 
-	local content = Creator.New("Frame", {
-		Name = "Content", Position = UDim2.new(0, SIDE_W, 0, 0),
-		Size = UDim2.new(1, -SIDE_W, 1, 0), ClipsDescendants = true,
-		ThemeTag = { BackgroundColor3 = "ContentBg" }, Parent = body,
-	})
+	-- LeftSidebar (external, to the left of CenterWindow)
+	local leftSidebar = Instance.new("Frame")
+	leftSidebar.Name = "LeftSidebar"; leftSidebar.AnchorPoint = Vector2.new(1, 0)
+	leftSidebar.Position = UDim2.new(0.5, -L.SidebarXOffset, 0, L.SidebarTopOffset)
+	leftSidebar.Size = UDim2.fromOffset(SIDE_W, L.SidebarH)
+	leftSidebar.BackgroundTransparency = 1; leftSidebar.Parent = master
+	local leftLayout = Instance.new("UIListLayout")
+	leftLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	leftLayout.Padding = UDim.new(0, L.TabListPad); leftLayout.Parent = leftSidebar
 
-	-- Register structural frames for LayoutManager live updates
-	_liveRefs = { root=root, header=hdr, body=body, sidebar=sidebar, content=content }
+	-- RightSidebar (external, to the right of CenterWindow)
+	local rightSidebar = Instance.new("Frame")
+	rightSidebar.Name = "RightSidebar"; rightSidebar.AnchorPoint = Vector2.new(0, 0)
+	rightSidebar.Position = UDim2.new(0.5, L.SidebarXOffset, 0, L.SidebarTopOffset)
+	rightSidebar.Size = UDim2.fromOffset(SIDE_W, L.SidebarH)
+	rightSidebar.BackgroundTransparency = 1; rightSidebar.Parent = master
+	local rightLayout = Instance.new("UIListLayout")
+	rightLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	rightLayout.Padding = UDim.new(0, L.TabListPad); rightLayout.Parent = rightSidebar
 
-	-- Drag
+	-- Register frames for LayoutManager live updates
+	_liveRefs = { root=root, header=hdr, master=master, pagesHolder=pagesHolder,
+	              leftSidebar=leftSidebar, rightSidebar=rightSidebar, bottomBar=bottomBar }
+
+	-- Drag (moves MasterContainer so all three panels move together)
 	do
 		local dragging = false; local lastMouse: Vector2
 		maid:Give(hdr.InputBegan:Connect(function(inp)
@@ -829,9 +893,9 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			if inp.UserInputType ~= Enum.UserInputType.MouseMovement
 				and inp.UserInputType ~= Enum.UserInputType.Touch then return end
 			local m = UserInputService:GetMouseLocation(); local d = m - lastMouse; lastMouse = m
-			root.Position = UDim2.new(
-				root.Position.X.Scale, root.Position.X.Offset + d.X,
-				root.Position.Y.Scale, root.Position.Y.Offset + d.Y)
+			master.Position = UDim2.new(
+				master.Position.X.Scale, master.Position.X.Offset + d.X,
+				master.Position.Y.Scale, master.Position.Y.Offset + d.Y)
 		end))
 		maid:Give(UserInputService.InputEnded:Connect(function(inp)
 			if inp.UserInputType == Enum.UserInputType.MouseButton1
@@ -839,70 +903,107 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		end))
 	end
 
-	-- Minimize
+	-- Minimize (key shortcut collapses CenterWindow to HeaderBar height, hides sidebars)
 	local minimised = false
 	local function setMin(state: boolean)
 		minimised = state
+		sectionHeader.Visible = not state
+		pagesHolder.Visible   = not state
+		bottomBar.Visible     = not state
+		leftSidebar.Visible   = not state
+		rightSidebar.Visible  = not state
 		tw(root, { Size = UDim2.fromOffset(W, state and HDR_H or H) }, Anim.Window)
-		body.Visible = not state
 	end
-	maid:Give(minBtn.MouseButton1Click:Connect(function() setMin(not minimised) end))
 	maid:Give(UserInputService.InputBegan:Connect(function(inp, gp)
 		if not gp and inp.KeyCode == minKey then setMin(not minimised) end
 	end))
 
-	-- Tab state
+	-- Section accordion collapse
+	maid:Give(sectionHeader.MouseButton1Click:Connect(function()
+		sectionOpen = not sectionOpen
+		pagesHolder.Visible = sectionOpen
+		tw(rotBox, { Rotation = sectionOpen and 45 or 225 }, Anim.Default)
+	end))
+
+	-- Live search filter (filters row titles in the currently active page)
+	maid:Give(searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+		local q = searchInput.Text:lower()
+		for _, pg in ipairs(pagesHolder:GetChildren()) do
+			if pg:IsA("ScrollingFrame") and pg.Visible then
+				for _, sec in ipairs(pg:GetChildren()) do
+					if sec:IsA("Frame") then
+						local innerF = sec:FindFirstChild("Inner")
+						if innerF then
+							for _, row in ipairs(innerF:GetChildren()) do
+								if row:IsA("Frame") then
+									local t = row:FindFirstChildWhichIsA("TextLabel")
+									if t then row.Visible = (q == "" or t.Text:lower():find(q, 1, true) ~= nil) end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end))
+
+	-- Tab state: active tab is full-opacity; inactive tabs are semi-transparent (darker)
 	local activeTab: any = nil
 	local function activateTab(tab: any)
 		if activeTab == tab then return end
 		if activeTab then
 			activeTab._page.Visible = false
-			Creator.Reg[activeTab._btn] = { BackgroundColor3 = "SidebarBg" }
-			tw(activeTab._btn, { BackgroundColor3 = T.SidebarBg }, Anim.Tab)
-			activeTab._accent.Visible = false
-			activeTab._btnLabel.TextColor3 = T.TabText
-			Creator.Reg[activeTab._btnLabel] = { TextColor3 = "TabText" }
+			tw(activeTab._btn, { BackgroundTransparency = 0.3 }, Anim.Tab)
 		end
 		activeTab = tab; tab._page.Visible = true
-		Creator.Reg[tab._btn] = { BackgroundColor3 = "TabActiveBg" }
-		tw(tab._btn, { BackgroundColor3 = T.TabActiveBg }, Anim.Tab)
-		tab._accent.Visible = true
-		tab._btnLabel.TextColor3 = T.TabTextActive
-		Creator.Reg[tab._btnLabel] = { TextColor3 = "TabTextActive" }
+		tw(tab._btn, { BackgroundTransparency = 0 }, Anim.Tab)
+		secTitle.Text = tab._label .. " Section"
 	end
 
-	local Window: any = { _gui = gui, _root = root, _maid = maid, _tabs = {} :: {any} }
+	local Window: any = { _gui = gui, _root = master, _maid = maid, _tabs = {} :: {any}, _utilTabs = {} :: {any} }
 
-	function Window:Tab(tabLabel: string): any
-		local tabIdx = #self._tabs + 1
+	function Window:Tab(tabLabel: string, opts_: {Side: string?}?): any
+		local side = (opts_ and opts_.Side) or "left"
+		local targetSidebar = (side == "right") and rightSidebar or leftSidebar
+		local tabIdx = (side == "right") and (#self._utilTabs + 1) or (#self._tabs + 1)
+		local pageName = (side == "right") and ("Page_Util" .. tabIdx) or ("Page_Tab" .. tabIdx)
+
+		-- Tab button (red with gradient, LuckiestGuy label, dark accent strips)
 		local btn = Creator.New("TextButton", {
-			Name = "Tab_" .. tabIdx, Text = "",
-			Size = UDim2.new(1, 0, 0, L.TabH), AutoButtonColor = false,
-			LayoutOrder = tabIdx, ZIndex = 2,
-			ThemeTag = { BackgroundColor3 = "SidebarBg" }, Parent = sidebar,
+			Name = (side == "right") and ("Util_" .. tabIdx) or ("Tab_" .. tabIdx),
+			Text = "", Size = UDim2.new(1, 0, 0, L.TabH),
+			AutoButtonColor = false, LayoutOrder = tabIdx, ZIndex = 2,
+			ThemeTag = { BackgroundColor3 = "TabActiveBg" }, Parent = targetSidebar,
 		}) :: TextButton
+		Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = btn })
 		Creator.New("UIStroke", {
 			Thickness = L.StrokeTabBtn, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "SidebarBorder" }, Parent = btn,
+			LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "HdrBorder" }, Parent = btn,
 		})
-		local accent = Creator.New("Frame", {
-			Size = UDim2.new(0, L.TabAccentW, 1, 0), BorderSizePixel = 0,
-			Visible = false, ZIndex = 3, ThemeTag = { BackgroundColor3 = "TabActiveLeft" }, Parent = btn,
+		Creator.New("Frame", {
+			Name = "LeftDarkAccent", Size = UDim2.new(0, L.BevelSize, 1, 0), BorderSizePixel = 0,
+			ZIndex = 3, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = btn,
+		})
+		Creator.New("Frame", {
+			Name = "BottomDarkAccent", AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, L.BevelSize),
+			BorderSizePixel = 0, ZIndex = 3, ThemeTag = { BackgroundColor3 = "HdrBevel" }, Parent = btn,
 		})
 		local btnLabel = Creator.New("TextLabel", {
-			Text = tabLabel, FontFace = FONT_TAB, TextSize = L.TabTextSize,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Position = UDim2.new(0, L.TabLabelIndent, 0, 0),
-			Size = UDim2.new(1, -L.TabLabelIndent, 1, 0),
-			BackgroundTransparency = 1, ZIndex = 3, ThemeTag = { TextColor3 = "TabText" }, Parent = btn,
+			Name = "Label", Text = tabLabel, FontFace = FONT_TITLE,
+			TextSize = L.TabTextSize, TextXAlignment = Enum.TextXAlignment.Center,
+			Position = UDim2.new(0, L.BevelSize + 4, 0, 0),
+			Size = UDim2.new(1, -(L.BevelSize + 4), 1, 0),
+			BackgroundTransparency = 1, ZIndex = 3,
+			ThemeTag = { TextColor3 = "TabTextActive" }, Parent = btn,
 		}) :: TextLabel
 
 		local page = Instance.new("ScrollingFrame")
-		page.Name = "Page_" .. tabIdx; page.Size = UDim2.new(1, 0, 1, 0)
+		page.Name = pageName; page.Size = UDim2.new(1, 0, 1, 0)
 		page.BackgroundTransparency = 1; page.BorderSizePixel = 0
 		page.ScrollBarThickness = L.ScrollBarThick; page.ScrollBarImageColor3 = T.ScrollBar
 		page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		page.CanvasSize = UDim2.new(0, 0, 0, 0); page.Visible = false; page.Parent = content
+		page.CanvasSize = UDim2.new(0, 0, 0, 0); page.Visible = false; page.Parent = pagesHolder
 		local pageLayout = Instance.new("UIListLayout")
 		pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		pageLayout.Padding = UDim.new(0, L.PageSectionGap); pageLayout.Parent = page
@@ -911,16 +1012,21 @@ function Library:CreateWindow(cfg: WindowCfg?)
 		pagePad.PaddingLeft   = UDim.new(0, L.PagePad); pagePad.PaddingRight  = UDim.new(0, L.PagePad)
 		pagePad.Parent = page
 
-		local Tab: any = { _btn=btn, _btnLabel=btnLabel, _accent=accent, _page=page, _sections={} }
+		local Tab: any = { _btn=btn, _btnLabel=btnLabel, _page=page, _label=tabLabel, _sections={} }
 		maid:Give(btn.MouseButton1Click:Connect(function() activateTab(Tab) end))
 		maid:Give(btn.MouseEnter:Connect(function()
-			if activeTab ~= Tab then tw(btn, { BackgroundColor3 = T.TabHoverBg }, Anim.Tab) end
+			if activeTab ~= Tab then tw(btn, { BackgroundTransparency = 0.1 }, Anim.Tab) end
 		end))
 		maid:Give(btn.MouseLeave:Connect(function()
-			if activeTab ~= Tab then tw(btn, { BackgroundColor3 = T.SidebarBg }, Anim.Tab) end
+			if activeTab ~= Tab then tw(btn, { BackgroundTransparency = 0.3 }, Anim.Tab) end
 		end))
-		table.insert(self._tabs, Tab)
-		if #self._tabs == 1 then activateTab(Tab) end
+		if side == "right" then
+			table.insert(self._utilTabs, Tab)
+			if #self._utilTabs == 1 and not activeTab then activateTab(Tab) end
+		else
+			table.insert(self._tabs, Tab)
+			if #self._tabs == 1 then activateTab(Tab) end
+		end
 
 		function Tab:Section(sectionLabel: string?): any
 			local secFrame = Creator.New("Frame", {
