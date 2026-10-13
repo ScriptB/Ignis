@@ -836,9 +836,10 @@ local function _buildReopenPill(gui: ScreenGui, title: string)
 		Text = "OPEN " .. (title:upper()) .. " [R-SHIFT]",
 		FontFace = FONT_FREDOKA, TextSize = 16, TextColor3 = Color3.fromRGB(255, 255, 255),
 		AutoButtonColor = false, BackgroundTransparency = 0,
-		ThemeTag = { BackgroundColor3 = "TabActiveBg" }, GradTag = true,
+		ThemeTag = { BackgroundColor3 = "TabActiveBg" },
 		ZIndex = 1, Visible = false, Parent = gui,
 	}) :: TextButton
+	Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = reopen })
 	Creator.New("UIStroke", {
 		Thickness = 3.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = reopen,
