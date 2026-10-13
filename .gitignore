@@ -1,2 +1,5 @@
 .ctx-local/
 *.tmp.ctx
+CLAUDE.md
+ctx/
+pass_notes/
