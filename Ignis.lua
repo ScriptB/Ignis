@@ -1,7 +1,7 @@
 --!strict
 --[[
 ╔══════════════════════════════════════════════════════════════════╗
-║  IGNIS  ·  v3.0.0  ·  Script UI Library                         ║
+║  IGNIS  ·  v3.2.0  ·  Script UI Library                         ║
 ║  Successor to Ember. Built for live Roblox environments.         ║
 ║  Architecture: Library → Window → Tab → Section → Element       ║
 ║  Managers: AnimationManager · ThemeManager · LayoutManager       ║
@@ -110,7 +110,7 @@ local L = {
 	-- Slider
 	SliderRowH               = 56,
 	SliderRowHDesc           = 68,
-	SliderTrackH             = 6,
+	SliderTrackH             = 8,
 	SliderKnobS              = 13,
 	SliderTrackY             = 38,
 	SliderTrackYD            = 50,
@@ -350,7 +350,10 @@ local BASE: {[string]: Color3} = {
 	TextHint       = Color3.fromRGB(100,115,100),
 	ToggleOn       = Color3.fromRGB(38,212,78),
 	ToggleOnDark   = Color3.fromRGB(18,148,50),
-	ToggleOff      = Color3.fromRGB(40,50,40),
+	ToggleOff      = Color3.fromRGB(16,22,16),
+	NotifSuccess   = Color3.fromRGB(38,185,75),
+	NotifWarning   = Color3.fromRGB(220,155,20),
+	NotifInfo      = Color3.fromRGB(55,145,230),
 	ToggleKnob     = Color3.fromRGB(255,255,255),
 	SliderTrack    = Color3.fromRGB(26,33,26),
 	SliderFill     = Color3.fromRGB(224,32,32),
@@ -421,7 +424,7 @@ end
 local Library = {
 	Window     = nil :: any,
 	Options    = {} :: {[string]: any},
-	Version    = "2.5.3",
+	Version    = "3.2.0",
 	_theme     = "Ignis Dark",
 	_themeSubs = {} :: {(string) -> ()},
 }
@@ -578,6 +581,10 @@ type NotifOpts = { Title: string, Message: string?, Duration: number?, Type: str
 function Library:Notify(opts: NotifOpts)
 	_ensureNotifGui()
 	local dur = opts.Duration or 3.5
+	local notifBarColor = opts.Type == "success" and T.NotifSuccess
+		or opts.Type == "warning" and T.NotifWarning
+		or opts.Type == "info"    and T.NotifInfo
+		or T.NotifBar
 	local card = Creator.New("Frame", {
 		Size = UDim2.new(1, 0, 0, L.NotifH), ClipsDescendants = true,
 		ThemeTag = { BackgroundColor3 = "NotifBg" }, Parent = _nHolder,
@@ -588,7 +595,7 @@ function Library:Notify(opts: NotifOpts)
 	})
 	Creator.New("Frame", {
 		Size = UDim2.new(0, L.NotifBarW, 1, 0), BorderSizePixel = 0,
-		ThemeTag = { BackgroundColor3 = "NotifBar" }, Parent = card,
+		BackgroundColor3 = notifBarColor, Parent = card,
 	})
 	local inner = Instance.new("Frame")
 	inner.Position = UDim2.new(0, L.NotifInnerPadL, 0, 0)
@@ -614,7 +621,7 @@ function Library:Notify(opts: NotifOpts)
 	local bar = Creator.New("Frame", {
 		AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0),
 		Size = UDim2.new(1, 0, 0, 2), BorderSizePixel = 0,
-		ThemeTag = { BackgroundColor3 = "NotifBar" }, Parent = card,
+		BackgroundColor3 = notifBarColor, Parent = card,
 	}) :: Frame
 	card.Position = UDim2.new(1.1, 0, 0, 0)
 	tw(card, { Position = UDim2.new(0, 0, 0, 0) }, Anim.Notif)
@@ -1102,9 +1109,40 @@ function Library:CreateWindow(cfg: WindowCfg?)
 			secFrame.LayoutOrder = #self._sections + 1
 			secFrame.BackgroundTransparency = 1
 			secFrame.Parent = page
+			-- UIListLayout on secFrame stacks optional label header above the row container
+			local secOuterLayout = Instance.new("UIListLayout")
+			secOuterLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			secOuterLayout.Padding = UDim.new(0, 4)
+			secOuterLayout.Parent = secFrame
+			-- Optional section label divider
+			if _sectionLabel and _sectionLabel ~= "" then
+				local SLHDR_H = 20
+				local slHdr = Instance.new("Frame")
+				slHdr.Name = "SectionLabel"; slHdr.LayoutOrder = 0
+				slHdr.Size = UDim2.new(1, 0, 0, SLHDR_H)
+				slHdr.BackgroundTransparency = 1; slHdr.Parent = secFrame
+				Creator.New("TextLabel", {
+					Text = _sectionLabel:upper(), FontFace = FONT_UI, TextSize = 10,
+					TextXAlignment = Enum.TextXAlignment.Center,
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.new(0.5, 0, 0.5, 0),
+					Size = UDim2.new(1, -32, 1, 0),
+					BackgroundTransparency = 1, ZIndex = 2,
+					ThemeTag = { TextColor3 = "TextHint" }, Parent = slHdr,
+				})
+				Creator.New("Frame", {
+					AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0),
+					Size = UDim2.new(0, 14, 0, 1), BackgroundTransparency = 0.4,
+					BorderSizePixel = 0, ThemeTag = { BackgroundColor3 = "TextHint" }, Parent = slHdr,
+				})
+				Creator.New("Frame", {
+					AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+					Size = UDim2.new(0, 14, 0, 1), BackgroundTransparency = 0.4,
+					BorderSizePixel = 0, ThemeTag = { BackgroundColor3 = "TextHint" }, Parent = slHdr,
+				})
+			end
 			local inner = Instance.new("Frame")
-			inner.Name = "Inner"
-			inner.Position = UDim2.new(0, 0, 0, 0)
+			inner.Name = "Inner"; inner.LayoutOrder = 1
 			inner.Size = UDim2.new(1, 0, 0, 0); inner.AutomaticSize = Enum.AutomaticSize.Y
 			inner.BackgroundTransparency = 1; inner.Parent = secFrame
 			local rowLayout = Instance.new("UIListLayout")
@@ -1196,7 +1234,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 					Position = UDim2.new(1, -16, 0.5, 0),
 					Size = UDim2.fromOffset(TW, TH),
 					AutoButtonColor = false,
-					BackgroundColor3 = Color3.fromRGB(10, 14, 10), Parent = row,
+					BackgroundColor3 = on and T.ToggleOn or T.ToggleOff, Parent = row,
 				}) :: TextButton
 				Creator.New("UIStroke", {
 					Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -1222,6 +1260,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				function el:_apply(v: boolean)
 					on = v
 					tw(knob, { Position = v and ON_POS or OFF_POS }, Anim.Toggle)
+					tw(track, { BackgroundColor3 = v and T.ToggleOn or T.ToggleOff }, Anim.ToggleTrack)
 					if opts.Callback then
 						local ok, e = xpcall(opts.Callback, debug.traceback, v)
 						if not ok then warn("[Ignis] Toggle cb: " .. e) end
@@ -1269,14 +1308,12 @@ function Library:CreateWindow(cfg: WindowCfg?)
 					Size = UDim2.new(1, -16 - L.SliderTrackRightPad, 0, L.SliderTrackH),
 					ThemeTag = { BackgroundColor3 = "SliderTrack" }, Parent = row,
 				}) :: Frame
-				Creator.New("UIStroke", {
-					Thickness = L.StrokeRow, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "RowBorder" }, Parent = track,
-				})
+				Creator.New("UICorner", { CornerRadius = UDim.new(0, L.SliderTrackH // 2), Parent = track })
 				local pct0 = (val - opts.Min) / (opts.Max - opts.Min)
 				local fill = Creator.New("Frame", {
 					Size = UDim2.new(pct0, 0, 1, 0), ThemeTag = { BackgroundColor3 = "SliderFill" }, Parent = track,
 				})
+				Creator.New("UICorner", { CornerRadius = UDim.new(0, L.SliderTrackH // 2), Parent = fill })
 				local knob = Creator.New("Frame", {
 					AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 3,
 					Position = UDim2.new(pct0, 0, 0.5, 0),
@@ -1323,11 +1360,19 @@ function Library:CreateWindow(cfg: WindowCfg?)
 
 			-- ── Button ────────────────────────────────────────────────────
 			function Section:Button(opts: {
-				Id: string, Name: string, Description: string?, Callback: (() -> ())?,
+				Id: string, Name: string, Description: string?,
+				Style: string?, Callback: (() -> ())?,
 			}): any
 				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
+				local isPrimary = opts.Style == "primary"
 				local hasDesc = opts.Description ~= nil
 				local row = mkRow(hasDesc and L.RowHDesc or L.RowH)
+				-- Primary style: accent-filled row
+				if isPrimary then
+					row.BackgroundColor3 = T.TabActiveBg
+					row.BackgroundTransparency = 0.1
+					Creator.New("UIGradient", { Rotation = 90, GradTag = true, Parent = row })
+				end
 				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
 				if hasDesc then
 					nameLabel.Position = UDim2.new(0, 16, 0, 8)
@@ -1344,7 +1389,7 @@ function Library:CreateWindow(cfg: WindowCfg?)
 					AnchorPoint = Vector2.new(1, 0.5),
 					Position = UDim2.new(1, -L.ElemRightPad, 0.5, 0),
 					Size = UDim2.fromOffset(L.BtnChevronW, L.BtnChevronH),
-					BackgroundTransparency = 1, ThemeTag = { TextColor3 = "TextSub" }, Parent = row,
+					BackgroundTransparency = 1, ThemeTag = { TextColor3 = isPrimary and "Text" or "TextSub" }, Parent = row,
 				})
 				local el = mkBase(opts.Id, nil, row)
 				function el:_apply(_v: any) end
@@ -1354,16 +1399,33 @@ function Library:CreateWindow(cfg: WindowCfg?)
 						local ok, e = xpcall(opts.Callback, debug.traceback)
 						if not ok then warn("[Ignis] Button cb: " .. e) end
 					end
-					tw(row, { BackgroundColor3 = T.TabActiveBg }, Anim.Button)
+					tw(row, { BackgroundColor3 = T.TabActiveBg, BackgroundTransparency = 0 }, Anim.Button)
 					task.delay((Anim.ButtonOut :: TweenInfo).Time, function()
-						tw(row, { BackgroundColor3 = T.RowBg }, Anim.ButtonOut)
+						if isPrimary then
+							tw(row, { BackgroundColor3 = T.TabActiveBg, BackgroundTransparency = 0.1 }, Anim.ButtonOut)
+						else
+							tw(row, { BackgroundColor3 = T.RowBg, BackgroundTransparency = 0.35 }, Anim.ButtonOut)
+						end
 					end)
 					el._fire(nil)
 				end
 				maid:Give(row.InputBegan:Connect(function(inp)
 					if inp.UserInputType == Enum.UserInputType.MouseButton1 then el.Press() end
 				end))
-				rowHover(row, el); return el
+				if isPrimary then
+					-- Hover for primary: slight brightening
+					maid:Give(row.MouseEnter:Connect(function()
+						if not el:IsDisabled() then
+							tw(row, { BackgroundTransparency = 0 }, Anim.Row)
+						end
+					end))
+					maid:Give(row.MouseLeave:Connect(function()
+						tw(row, { BackgroundTransparency = 0.1 }, Anim.Row)
+					end))
+				else
+					rowHover(row, el)
+				end
+				return el
 			end
 
 			-- ── Dropdown ──────────────────────────────────────────────────
@@ -1676,6 +1738,175 @@ function Library:CreateWindow(cfg: WindowCfg?)
 				local el = mkBase(opts.Id, opts.Text, row)
 				function el:_apply(v: any) bl.Text = tostring(v) end
 				return el
+			end
+
+			-- ── ColorPicker ───────────────────────────────────────────────
+			function Section:ColorPicker(opts: {
+				Id: string, Name: string, Default: Color3?,
+				Description: string?, Callback: ((Color3) -> ())?,
+			}): any
+				if Library.Options[opts.Id] then return Library.Options[opts.Id] end
+				local col = opts.Default or Color3.fromRGB(255, 255, 255)
+				local r_ = math.round(col.R * 255)
+				local g_ = math.round(col.G * 255)
+				local b_ = math.round(col.B * 255)
+				local hasDesc = opts.Description ~= nil
+				local row = mkRow(hasDesc and L.RowHDesc or L.RowH)
+				local nameLabel = mkLabel(opts.Name, L.ElemNameSize, "Text", row, true)
+				if hasDesc then
+					nameLabel.Position = UDim2.new(0, 16, 0, 8)
+					nameLabel.Size = UDim2.new(0.6, 0, 0, 28)
+					local dl = mkLabel(opts.Description :: string, L.ElemDescSize, "TextSub", row)
+					dl.Position = UDim2.new(0, 16, 0, 42)
+					dl.Size = UDim2.new(0.6, 0, 0, 22)
+				else
+					nameLabel.Position = UDim2.new(0, 16, 0, 0)
+					nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
+				end
+				-- Color swatch
+				local swatch = Creator.New("TextButton", {
+					Name = "ColorSwatch", Text = "",
+					AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0),
+					Size = UDim2.fromOffset(40, 24), AutoButtonColor = false,
+					BackgroundColor3 = col, ZIndex = 2, Parent = row,
+				}) :: TextButton
+				Creator.New("UICorner", { CornerRadius = UDim.new(0, 4), Parent = swatch })
+				Creator.New("UIStroke", {
+					Thickness = 1.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = swatch,
+				})
+				-- Picker panel
+				local PANEL_W = 200; local PANEL_H = 104
+				local MS_H = 4; local MS_KNOB = 10
+				local panel = Creator.New("Frame", {
+					Name = "ColorPickerPanel",
+					AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 1, 6),
+					Size = UDim2.fromOffset(PANEL_W, PANEL_H),
+					BackgroundColor3 = Color3.fromRGB(10, 13, 10),
+					ZIndex = 50, Visible = false, ClipsDescendants = false, Parent = row,
+				}) :: Frame
+				Creator.New("UIStroke", {
+					Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0,0,0), Parent = panel,
+				})
+				local preview = Instance.new("Frame")
+				preview.Name = "Preview"; preview.Size = UDim2.new(1, 0, 0, 12)
+				preview.BackgroundColor3 = col; preview.BorderSizePixel = 0; preview.ZIndex = 51
+				preview.Parent = panel
+				-- hexL reference held in a table so mini-sliders can update it after creation
+				local hexRef: {l: TextLabel?} = { l = nil }
+				local function rebuildColor()
+					col = Color3.fromRGB(r_, g_, b_)
+					swatch.BackgroundColor3 = col; preview.BackgroundColor3 = col
+					if hexRef.l then hexRef.l.Text = string.format("#%02X%02X%02X", r_, g_, b_) end
+					if opts.Callback then xpcall(opts.Callback, debug.traceback, col) end
+				end
+				-- Mini-slider builder (channel: 1=R 2=G 3=B, yOff: vertical offset in panel)
+				local function mkMiniSlider(ch: number, yOff: number)
+					local labels = {"R","G","B"}
+					local getV = function(): number
+						if ch == 1 then return r_ elseif ch == 2 then return g_ else return b_ end
+					end
+					local setV = function(v: number)
+						if ch == 1 then r_ = v elseif ch == 2 then g_ = v else b_ = v end
+					end
+					local lbl = Instance.new("TextLabel")
+					lbl.Text = labels[ch]; lbl.FontFace = FONT_UI; lbl.TextSize = 10
+					lbl.TextColor3 = T.TextSub; lbl.BackgroundTransparency = 1; lbl.ZIndex = 52
+					lbl.Position = UDim2.new(0, 8, 0, yOff); lbl.Size = UDim2.fromOffset(10, 14)
+					lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Parent = panel
+					Creator.Reg[lbl :: any] = { TextColor3 = "TextSub" }
+					local slTr = Creator.New("Frame", {
+						Position = UDim2.new(0, 22, 0, yOff + 4),
+						Size = UDim2.new(1, -22-30, 0, MS_H),
+						BackgroundColor3 = Color3.fromRGB(26,33,26),
+						ZIndex = 51, Parent = panel,
+					}) :: Frame
+					Creator.New("UICorner", { CornerRadius = UDim.new(0, 2), Parent = slTr })
+					local pct0 = getV() / 255
+					local slFl = Creator.New("Frame", {
+						Size = UDim2.new(pct0, 0, 1, 0),
+						ThemeTag = { BackgroundColor3 = "SliderFill" }, ZIndex = 52, Parent = slTr,
+					}) :: Frame
+					Creator.New("UICorner", { CornerRadius = UDim.new(0, 2), Parent = slFl })
+					local slKn = Creator.New("Frame", {
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						Position = UDim2.new(pct0, 0, 0.5, 0),
+						Size = UDim2.fromOffset(MS_KNOB, MS_KNOB),
+						BackgroundColor3 = Color3.fromRGB(255,255,255),
+						ZIndex = 53, Parent = slTr,
+					}) :: Frame
+					Creator.New("UICorner", { CornerRadius = UDim.new(0, MS_KNOB // 2), Parent = slKn })
+					local valL = Instance.new("TextLabel")
+					valL.Text = tostring(getV()); valL.FontFace = FONT_UI; valL.TextSize = 10
+					valL.TextColor3 = T.TextSub; valL.BackgroundTransparency = 1; valL.ZIndex = 52
+					valL.AnchorPoint = Vector2.new(1, 0)
+					valL.Position = UDim2.new(1, -4, 0, yOff); valL.Size = UDim2.fromOffset(24, 14)
+					valL.TextXAlignment = Enum.TextXAlignment.Right; valL.Parent = panel
+					Creator.Reg[valL :: any] = { TextColor3 = "TextSub" }
+					local function fromX(x: number): number
+						local ax = slTr.AbsolutePosition.X; local aw = slTr.AbsoluteSize.X
+						return math.clamp(math.round(math.clamp((x-ax)/aw, 0, 1) * 255), 0, 255)
+					end
+					local function update(v: number)
+						setV(v)
+						local pct = v / 255
+						slFl.Size = UDim2.new(pct, 0, 1, 0); slKn.Position = UDim2.new(pct, 0, 0.5, 0)
+						valL.Text = tostring(v); rebuildColor()
+					end
+					local cpDrag = false
+					maid:Give(slTr.InputBegan:Connect(function(inp)
+						if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+							cpDrag = true; update(fromX(inp.Position.X))
+						end
+					end))
+					maid:Give(UserInputService.InputChanged:Connect(function(inp)
+						if cpDrag and inp.UserInputType == Enum.UserInputType.MouseMovement then
+							update(fromX(inp.Position.X))
+						end
+					end))
+					maid:Give(UserInputService.InputEnded:Connect(function(inp)
+						if inp.UserInputType == Enum.UserInputType.MouseButton1 then cpDrag = false end
+					end))
+				end
+				mkMiniSlider(1, 16); mkMiniSlider(2, 40); mkMiniSlider(3, 64)
+				-- Hex display
+				local hexL = Instance.new("TextLabel")
+				hexL.Text = string.format("#%02X%02X%02X", r_, g_, b_)
+				hexL.FontFace = FONT_UI; hexL.TextSize = 10
+				hexL.TextColor3 = T.TextHint; hexL.BackgroundTransparency = 1
+				hexL.AnchorPoint = Vector2.new(0.5, 0); hexL.Position = UDim2.new(0.5, 0, 0, 88)
+				hexL.Size = UDim2.new(0.9, 0, 0, 12)
+				hexL.TextXAlignment = Enum.TextXAlignment.Center; hexL.ZIndex = 52; hexL.Parent = panel
+				Creator.Reg[hexL :: any] = { TextColor3 = "TextHint" }
+				hexRef.l = hexL
+				-- Close shield
+				local cpShield = Instance.new("TextButton")
+				cpShield.Name = "CPShield"; cpShield.Size = UDim2.new(1, 0, 1, 0)
+				cpShield.BackgroundTransparency = 1; cpShield.Text = ""; cpShield.ZIndex = 49
+				cpShield.Visible = false; cpShield.Parent = pagesHolder
+				local pickerOpen = false
+				local function closeCP()
+					panel.Visible = false; cpShield.Visible = false; pickerOpen = false
+				end
+				maid:Give(swatch.MouseButton1Click:Connect(function()
+					pickerOpen = not pickerOpen
+					panel.Visible = pickerOpen; cpShield.Visible = pickerOpen
+				end))
+				maid:Give(cpShield.MouseButton1Click:Connect(closeCP))
+				local el = mkBase(opts.Id, col, row)
+				function el:_apply(v: any)
+					if typeof(v) == "Color3" then
+						col = v :: Color3
+						r_ = math.round(col.R * 255)
+						g_ = math.round(col.G * 255)
+						b_ = math.round(col.B * 255)
+						swatch.BackgroundColor3 = col; preview.BackgroundColor3 = col
+						if hexRef.l then hexRef.l.Text = string.format("#%02X%02X%02X", r_, g_, b_) end
+					end
+					if opts.Callback then xpcall(opts.Callback, debug.traceback, col) end
+				end
+				rowHover(row, el); return el
 			end
 
 			return Section
