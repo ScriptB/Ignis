@@ -98,8 +98,8 @@ local function normalizeScope(scope: any): any
 	return keyed
 end
 
-local function computeCategoryTween(cat: string, defDur: number, preset: string, speed: number, scope: any): TweenInfo
-	local overrides = _ANIM_PRESETS[preset] or {}
+local function computeCategoryTween(cat: string, defDur: number, preset: string, speed: number, scope: any, presets: {[string]: {[string]: any}}): TweenInfo
+	local overrides = presets[preset] or {}
 	local everywhere = scope == "everywhere"
 	local inScope = everywhere
 		or (type(scope) == "table" and scope[cat] ~= nil)
@@ -125,6 +125,17 @@ return function(Library: any)
 	local Anim: {[string]: TweenInfo} = Library.Anim or {}
 	Library.Anim = Anim
 
+	local presets: {[string]: {[string]: any}} = {}
+	for name, cats in pairs(_ANIM_PRESETS) do
+		presets[name] = {}
+		for k, v in pairs(cats) do
+			presets[name][k] = v
+		end
+	end
+
+	local _overrides: {[string]: TweenInfo} = {}
+	local _activeTweens: {[any]: any} = {}
+
 	local AnimationManager: any = {
 		_preset = "Default",
 		_speed = 1.0,
@@ -134,7 +145,10 @@ return function(Library: any)
 
 	local function rebuildAnim(preset: string, speed: number, scope: any)
 		for cat, defDur in pairs(_DEF_DUR) do
-			Anim[cat] = computeCategoryTween(cat, defDur, preset, speed, scope)
+			Anim[cat] = computeCategoryTween(cat, defDur, preset, speed, scope, presets)
+		end
+		for cat, info in pairs(_overrides) do
+			Anim[cat] = info
 		end
 	end
 
@@ -147,11 +161,22 @@ return function(Library: any)
 			end
 			return
 		end
-		TweenService:Create(inst, info or Anim.Default, props):Play()
+		if _activeTweens[inst] then
+			_activeTweens[inst]:Cancel()
+		end
+		local tween = TweenService:Create(inst, info or Anim.Default, props)
+		_activeTweens[inst] = tween
+		tween:Play()
 	end
 
 	function AnimationManager:SetEnabled(enabled: boolean)
 		self._enabled = enabled
+		if not enabled then
+			for _, tween in pairs(_activeTweens) do
+				tween:Cancel()
+			end
+			_activeTweens = {}
+		end
 	end
 
 	function AnimationManager:SetSpeed(speed: number)
@@ -172,7 +197,7 @@ return function(Library: any)
 			self._preset = name
 			return
 		end
-		local preset = _ANIM_PRESETS[name]
+		local preset = presets[name]
 		if not preset then
 			warn("[Ignis:Anim] Unknown preset: " .. name)
 			return
@@ -184,7 +209,7 @@ return function(Library: any)
 
 	function AnimationManager:AddPreset(name: string, cats: {[string]: any})
 		assert(type(name) == "string", "[Ignis:Anim] Name must be a string")
-		_ANIM_PRESETS[name] = cats
+		presets[name] = cats
 	end
 
 	function AnimationManager:RemovePreset(name: string)
@@ -193,12 +218,12 @@ return function(Library: any)
 			warn("[Ignis:Anim] Cannot remove built-in preset")
 			return
 		end
-		_ANIM_PRESETS[name] = nil
+		presets[name] = nil
 	end
 
 	function AnimationManager:GetPresetNames(): {string}
 		local names = {}
-		for k in pairs(_ANIM_PRESETS) do
+		for k in pairs(presets) do
 			table.insert(names, k)
 		end
 		table.sort(names)
@@ -206,10 +231,12 @@ return function(Library: any)
 	end
 
 	function AnimationManager:SetCategory(cat: string, info: TweenInfo)
+		_overrides[cat] = info
 		Anim[cat] = info
 	end
 
 	function AnimationManager:SetCurve(cat: string, info: TweenInfo)
+		_overrides[cat] = info
 		Anim[cat] = info
 	end
 

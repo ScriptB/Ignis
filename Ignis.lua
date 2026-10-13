@@ -32,7 +32,7 @@ local function _getGenv(): any
 end
 local function SafeParentGui(gui: ScreenGui)
 	gui.DisplayOrder = 999; gui.ResetOnSpawn = false
-	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 	local genv = _getGenv()
 	local protect = rawget(genv, "protectgui") or (rawget(genv, "syn") and (genv.syn :: any).protect_gui)
 	if protect then pcall(protect, gui) end
@@ -229,47 +229,48 @@ local function tw(inst: Instance, props: {[string]: any}, info: TweenInfo?)
 end
 
 local BASE: {[string]: Color3} = {
-	WinBg          = Color3.fromRGB(18,22,18),
-	HdrTop         = Color3.fromRGB(248,55,55),
-	HdrMid         = Color3.fromRGB(224,32,32),
-	HdrBot         = Color3.fromRGB(110,10,10),
-	HdrBevel       = Color3.fromRGB(115,14,14),
-	HdrBorder      = Color3.fromRGB(0,0,0),
-	SidebarBg      = Color3.fromRGB(10,12,10),
-	SidebarBorder  = Color3.fromRGB(0,0,0),
-	TabHoverBg     = Color3.fromRGB(248,55,55),
-	TabActiveBg    = Color3.fromRGB(224,32,32),
-	TabActiveLeft  = Color3.fromRGB(115,14,14),
-	TabText        = Color3.fromRGB(255,255,255),
-	TabTextActive  = Color3.fromRGB(255,255,255),
-	ContentBg      = Color3.fromRGB(10,14,10),
-	SectionBg      = Color3.fromRGB(10,14,10),
-	SectionBorder  = Color3.fromRGB(0,0,0),
-	SectionBevel   = Color3.fromRGB(115,14,14),
-	RowBg          = Color3.fromRGB(12,16,12),
-	RowBgHover     = Color3.fromRGB(18,24,18),
-	RowBorder      = Color3.fromRGB(34,40,34),
-	RowBorderOuter = Color3.fromRGB(0,0,0),
-	Text           = Color3.fromRGB(255,255,255),
-	TextSub        = Color3.fromRGB(180,190,185),
-	TextHint       = Color3.fromRGB(110,120,110),
-	ToggleOn       = Color3.fromRGB(38,212,78),
-	ToggleOnDark   = Color3.fromRGB(18,148,50),
-	ToggleOff      = Color3.fromRGB(10,14,10),
-	NotifSuccess   = Color3.fromRGB(38,185,75),
-	NotifWarning   = Color3.fromRGB(220,155,20),
-	NotifInfo      = Color3.fromRGB(55,145,230),
-	ToggleKnob     = Color3.fromRGB(250,250,250),
-	SliderTrack    = Color3.fromRGB(10,14,10),
-	SliderFill     = Color3.fromRGB(224,32,32),
-	SliderKnob     = Color3.fromRGB(250,250,250),
-	InputBg        = Color3.fromRGB(8,11,8),
-	InputBorder    = Color3.fromRGB(0,0,0),
-	InputText      = Color3.fromRGB(255,255,255),
-	NotifBg        = Color3.fromRGB(15,18,15),
-	NotifBorder    = Color3.fromRGB(0,0,0),
-	NotifBar       = Color3.fromRGB(224,32,32),
-	ScrollBar      = Color3.fromRGB(70,80,70),
+	WinBg          = Color3.fromRGB(14, 12, 18),
+	HdrTop         = Color3.fromRGB(255, 108, 22),
+	HdrMid         = Color3.fromRGB(230, 72, 15),
+	HdrBot         = Color3.fromRGB(135, 28, 6),
+	HdrBevel       = Color3.fromRGB(165, 38, 8),
+	HdrBorder      = Color3.fromRGB(18, 8, 5),
+	SidebarBg      = Color3.fromRGB(10, 8, 14),
+	SidebarBorder  = Color3.fromRGB(30, 22, 45),
+	TabHoverBg     = Color3.fromRGB(255, 108, 22),
+	TabActiveBg    = Color3.fromRGB(230, 72, 15),
+	TabActiveLeft  = Color3.fromRGB(135, 28, 6),
+	TabText        = Color3.fromRGB(255, 255, 255),
+	TabTextActive  = Color3.fromRGB(255, 255, 255),
+	ContentBg      = Color3.fromRGB(11, 9, 16),
+	SectionBg      = Color3.fromRGB(13, 11, 18),
+	SectionBorder  = Color3.fromRGB(32, 26, 50),
+	SectionBevel   = Color3.fromRGB(165, 38, 8),
+	RowBg          = Color3.fromRGB(16, 13, 22),
+	RowBgHover     = Color3.fromRGB(22, 18, 32),
+	RowBorder      = Color3.fromRGB(40, 32, 60),
+	RowBorderOuter = Color3.fromRGB(8, 6, 12),
+	Text           = Color3.fromRGB(255, 255, 255),
+	TextSub        = Color3.fromRGB(182, 176, 200),
+	TextHint       = Color3.fromRGB(108, 98, 130),
+	ToggleOn       = Color3.fromRGB(38, 212, 78),
+	ToggleOnDark   = Color3.fromRGB(18, 148, 50),
+	ToggleOff      = Color3.fromRGB(11, 9, 16),
+	NotifSuccess   = Color3.fromRGB(38, 185, 75),
+	NotifWarning   = Color3.fromRGB(220, 155, 20),
+	NotifInfo      = Color3.fromRGB(55, 145, 230),
+	ToggleKnob     = Color3.fromRGB(250, 250, 250),
+	SliderTrack    = Color3.fromRGB(11, 9, 16),
+	SliderFill     = Color3.fromRGB(230, 72, 15),
+	SliderKnob     = Color3.fromRGB(250, 250, 250),
+	InputBg        = Color3.fromRGB(9, 7, 14),
+	InputBorder    = Color3.fromRGB(32, 26, 50),
+	InputText      = Color3.fromRGB(255, 255, 255),
+	NotifBg        = Color3.fromRGB(14, 12, 18),
+	NotifBorder    = Color3.fromRGB(32, 26, 50),
+	NotifBar       = Color3.fromRGB(230, 72, 15),
+	ScrollBar      = Color3.fromRGB(75, 60, 105),
+	DropdownBg     = Color3.fromRGB(18, 15, 26),
 }
 local T: {[string]: Color3} = {}
 for k, v in pairs(BASE) do
@@ -297,7 +298,7 @@ local function _applyGrad(inst: UIGradient)
 	inst.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, T.HdrTop),
 		ColorSequenceKeypoint.new(0.25, T.HdrMid),
-		ColorSequenceKeypoint.new(0.75, Color3.fromRGB(175, 14, 14)),
+		ColorSequenceKeypoint.new(0.75, T.HdrBevel),
 		ColorSequenceKeypoint.new(1, T.HdrBot),
 	})
 end
@@ -337,12 +338,18 @@ function Creator.UpdateTheme()
 		Library._updateTheme()
 		return
 	end
+	local dead = {}
 	for inst, tag in pairs(Creator.Reg) do
 		if inst.Parent then
 			for p, tk in pairs(tag) do
 				_applyToken(inst, p, tk)
 			end
+		else
+			table.insert(dead, inst)
 		end
+	end
+	for _, inst in ipairs(dead) do
+		Creator.Reg[inst] = nil
 	end
 	for inst in pairs(Creator.Grad) do
 		if inst.Parent then
@@ -462,7 +469,7 @@ end
 local function _animateNotifCard(card: Frame, bar: Frame, dur: number)
 	card.Position = UDim2.new(1.1, 0, 0, 0)
 	tw(card, { Position = UDim2.new(0, 0, 0, 0) }, Anim.Notif)
-	if _animEnabled then
+	if Library.AnimationManager and Library.AnimationManager._enabled then
 		TweenService:Create(bar, TweenInfo.new(dur, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 2) }):Play()
 	else
 		task.delay(dur, function() if bar.Parent then bar.Size = UDim2.new(0, 0, 0, 2) end end)
@@ -470,7 +477,8 @@ local function _animateNotifCard(card: Frame, bar: Frame, dur: number)
 	task.delay(dur, function()
 		if card.Parent then
 			tw(card, { Position = UDim2.new(1.1, 0, 0, 0) }, Anim.NotifOut)
-			task.delay((Anim.NotifOut :: TweenInfo).Time + 0.05, function()
+			local notifOutTime = Anim.NotifOut and Anim.NotifOut.Time or 0.3
+			task.delay(notifOutTime + 0.05, function()
 				if card.Parent then card:Destroy() end
 			end)
 		end
@@ -489,6 +497,7 @@ local function mkBase(id: string, initial: any, frame: Frame): any
 	local value = initial
 	local subs: {(any) -> ()} = {}
 	local disabled = false
+	local rowAlpha = frame.BackgroundTransparency
 	local function fire(v: any)
 		for _, fn in ipairs(subs) do
 			local ok, e = xpcall(fn, debug.traceback, v)
@@ -512,12 +521,12 @@ local function mkBase(id: string, initial: any, frame: Frame): any
 		end
 	end
 	function self:SetDisabled(b: boolean)
-		disabled = b; frame.BackgroundTransparency = b and 0.6 or 0
+		disabled = b; frame.BackgroundTransparency = b and 0.6 or rowAlpha
 		for _, d in ipairs(frame:GetDescendants()) do
 			if d:IsA("TextLabel") then (d :: TextLabel).TextTransparency = b and 0.5 or 0 end
 		end
 	end
-	function self:SetVisible(b: boolean) frame.Visible = b end
+	function self:SetVisible(b: boolean) frame:SetAttribute("IgnisDevVisible", b); frame.Visible = b end
 	function self:IsDisabled(): boolean  return disabled   end
 	if id then Library.Options[id] = self end
 	return self
@@ -544,7 +553,7 @@ local function _newToastFrame(gui: ScreenGui)
 	local toast = Creator.New("Frame", {
 		Name = "Toast", AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, 70), Size = UDim2.fromOffset(360, 46),
-		BackgroundColor3 = Color3.fromRGB(15, 18, 15), Parent = gui,
+		ThemeTag = { BackgroundColor3 = "NotifBg" }, Parent = gui,
 	}) :: Frame
 	Creator.New("UIStroke", {
 		Thickness = 2.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -711,9 +720,11 @@ local function _buildAccordion(root: Frame)
 end
 
 local function _buildSearchContainer(bar: Frame, placeholder: string?)
-	local cont = Instance.new("Frame")
-	cont.Name = "SearchFieldContainer"; cont.Position = UDim2.new(0, 105, 0.5, -17)
-	cont.Size = UDim2.new(1, -165, 0, 34); cont.BackgroundColor3 = Color3.fromRGB(6, 8, 6); cont.BorderSizePixel = 0; cont.Parent = bar
+	local cont = Creator.New("Frame", {
+		Name = "SearchFieldContainer", Position = UDim2.new(0, 105, 0.5, -17),
+		Size = UDim2.new(1, -165, 0, 34), BorderSizePixel = 0,
+		ThemeTag = { BackgroundColor3 = "InputBg" }, Parent = bar,
+	}) :: Frame
 	Creator.New("UIStroke", {
 		Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = cont,
@@ -824,17 +835,12 @@ local function _buildReopenPill(gui: ScreenGui, title: string)
 		Text = "OPEN " .. (title:upper()) .. " [R-SHIFT]",
 		FontFace = FONT_FREDOKA, TextSize = 16, TextColor3 = Color3.fromRGB(255, 255, 255),
 		AutoButtonColor = false, BackgroundTransparency = 0,
-		BackgroundColor3 = Color3.fromRGB(224, 32, 32), ZIndex = 1, Visible = false, Parent = gui,
+		ThemeTag = { BackgroundColor3 = "TabActiveBg" }, GradTag = true,
+		ZIndex = 1, Visible = false, Parent = gui,
 	}) :: TextButton
 	Creator.New("UIStroke", {
 		Thickness = 3.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = reopen,
-	})
-	Creator.New("UIGradient", {
-		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(244, 52, 52)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(175, 18, 18)),
-		}), Rotation = 90, Parent = reopen,
 	})
 	return reopen
 end
@@ -849,6 +855,7 @@ local function _buildPage(pagesHolder: Frame, name: string)
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(0, 0, 0, 0), Visible = false, Parent = pagesHolder,
 	}) :: ScrollingFrame
+	Creator.Reg[page :: any] = { ScrollBarImageColor3 = "ScrollBar" }
 	Creator.New("UIStroke", {
 		Thickness = L.StrokePage, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = page,
@@ -885,7 +892,11 @@ local function _buildMasterAndRoot(gui: ScreenGui, W: number, H: number)
 	shield.Name = "DropdownShield"; shield.Size = UDim2.new(1, 0, 1, 0)
 	shield.Position = UDim2.new(0, 0, 0, 0); shield.BackgroundTransparency = 1
 	shield.Text = ""; shield.ZIndex = 40; shield.Visible = false; shield.Parent = root
-	return master, root, shield
+	local overlay = Creator.New("Frame", {
+		Name = "DropdownOverlay", Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1, ZIndex = 90, ClipsDescendants = false, Parent = root,
+	}) :: Frame
+	return master, root, shield, overlay
 end
 
 local function _buildPagesHolder(root: Frame, H: number)
@@ -896,7 +907,7 @@ local function _buildPagesHolder(root: Frame, H: number)
 	holder.Position = UDim2.new(0, 12, 0, pagesTop)
 	holder.Size = UDim2.new(1, -24, 0, pagesH)
 	holder.BackgroundTransparency = 1
-	holder.ClipsDescendants = true
+	holder.ClipsDescendants = false
 	holder.Parent = root
 	return holder
 end
@@ -956,14 +967,17 @@ local function _bindSearch(maid: any, searchInput: TextBox, pagesHolder: Frame)
 		_closeActiveDropdown()
 		local q = searchInput.Text:lower()
 		for _, pg in ipairs(pagesHolder:GetChildren()) do
-			if pg:IsA("ScrollingFrame") and pg.Visible then
+			if pg:IsA("ScrollingFrame") then
 				for _, sec in ipairs(pg:GetChildren()) do
 					if sec:IsA("Frame") then
 						local innerF = sec:FindFirstChild("Inner") or sec
 						for _, row in ipairs(innerF:GetChildren()) do
 							if row:IsA("Frame") then
 								local t = row:FindFirstChild("Title") or row:FindFirstChildWhichIsA("TextLabel")
-								if t then row.Visible = (q == "" or t.Text:lower():find(q, 1, true) ~= nil) end
+								if t then
+									local devHidden = row:GetAttribute("IgnisDevVisible") == false
+									row.Visible = not devHidden and (q == "" or t.Text:lower():find(q, 1, true) ~= nil)
+								end
 							end
 						end
 					end
@@ -1088,7 +1102,7 @@ local function _buildDropdownPill(row: Frame, cur: string)
 	local pill = Creator.New("TextButton", {
 		Name = "DropdownPill", AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -16, 0.5, 0), Size = UDim2.fromOffset(160, 38),
-		Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(6, 8, 6), Parent = row,
+		Text = "", AutoButtonColor = false, ThemeTag = { BackgroundColor3 = "DropdownBg" }, Parent = row,
 	}) :: TextButton
 	Creator.New("UIStroke", { Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = pill })
 	local dispL = Creator.New("TextLabel", {
@@ -1102,41 +1116,41 @@ local function _buildDropdownPill(row: Frame, cur: string)
 	chev.Position = UDim2.new(1, -8, 0.5, 0); chev.Size = UDim2.fromOffset(14, 14); chev.Parent = pill
 	local rBox = Instance.new("Frame")
 	rBox.Name = "RotatedBox"; rBox.BackgroundTransparency = 1; rBox.AnchorPoint = Vector2.new(0.5, 0.5); rBox.Position = UDim2.new(0.5, 0, 0.5, 0); rBox.Size = UDim2.fromOffset(10, 10); rBox.Rotation = 45; rBox.Parent = chev
-	Creator.New("Frame", { Name = "BottomBar", Position = UDim2.new(0, 0, 1, -2), Size = UDim2.new(1, 0, 0, 2), BackgroundColor3 = Color3.fromRGB(40, 215, 80), BorderSizePixel = 0, Parent = rBox })
-	Creator.New("Frame", { Name = "RightBar", Position = UDim2.new(1, -2, 0, 0), Size = UDim2.new(0, 2, 1, 0), BackgroundColor3 = Color3.fromRGB(40, 215, 80), BorderSizePixel = 0, Parent = rBox })
+	Creator.New("Frame", { Name = "BottomBar", Position = UDim2.new(0, 0, 1, -2), Size = UDim2.new(1, 0, 0, 2), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Parent = rBox })
+	Creator.New("Frame", { Name = "RightBar", Position = UDim2.new(1, -2, 0, 0), Size = UDim2.new(0, 2, 1, 0), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Parent = rBox })
 	return pill, dispL, rBox
 end
 
-local function _buildDropdownMenu(row: Frame, opts: any, optH: number, onSelect: (string) -> ())
+local function _buildDropdownMenu(overlay: Frame, opts: any, optH: number, onSelect: (string) -> ())
 	local menuH = math.min(#opts.Options * optH, 128)
 	local menu = Creator.New("Frame", {
-		Name = "DropdownMenu", AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -16, 1, 4), Size = UDim2.fromOffset(160, menuH),
-		BackgroundColor3 = Color3.fromRGB(14, 18, 14), ZIndex = 50, Visible = false, Parent = row,
+		Name = "DropdownMenu", AnchorPoint = Vector2.new(0, 0),
+		Position = UDim2.fromOffset(0, 0), Size = UDim2.fromOffset(160, menuH),
+		ThemeTag = { BackgroundColor3 = "InputBg" }, ZIndex = 1, Visible = false, Parent = overlay,
 	}) :: Frame
-	Creator.New("UIStroke", { Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = menu })
+	Creator.New("UIStroke", { Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "RowBorder" }, Parent = menu })
 	local mList = Instance.new("UIListLayout")
 	mList.SortOrder = Enum.SortOrder.LayoutOrder; mList.Parent = menu
 	for idx, opt in ipairs(opts.Options) do
 		local ob = Creator.New("TextButton", {
 			Name = "Opt_" .. idx, Text = opt, FontFace = FONT_FREDOKA, TextSize = 14,
 			TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, optH), AutoButtonColor = true,
-			ZIndex = 51, BackgroundColor3 = Color3.fromRGB(14, 18, 14), ThemeTag = { TextColor3 = "Text" }, Parent = menu,
+			ZIndex = 2, ThemeTag = { BackgroundColor3 = "InputBg", TextColor3 = "Text" }, Parent = menu,
 		}) :: TextButton
-		Creator.New("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual, LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.fromRGB(34, 40, 34), Parent = ob })
+		Creator.New("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual, LineJoinMode = Enum.LineJoinMode.Miter, ThemeTag = { Color = "RowBorder" }, Parent = ob })
 		ob.MouseButton1Click:Connect(function() onSelect(opt) end)
 	end
 	return menu
 end
 
-local function _wireDropdownEl(el: any, multi: boolean, mSel: any, opts: any, dispL: TextLabel, cur: string)
+local function _wireDropdownEl(el: any, multi: boolean, mSel: any, opts: any, dispL: TextLabel, curBox: {v: string})
 	function el:Get(): any
 		if multi then
 			local s = {}
 			for _, o in ipairs(opts.Options) do if mSel[o] then table.insert(s, o) end end
 			return s
 		end
-		return cur
+		return curBox.v
 	end
 	function el:_apply(v: any)
 		if multi and type(v) == "table" then
@@ -1145,7 +1159,7 @@ local function _wireDropdownEl(el: any, multi: boolean, mSel: any, opts: any, di
 			for _, o in ipairs(v) do mSel[o] = true; table.insert(sel, o) end
 			dispL.Text = #sel > 0 and table.concat(sel, ", ") or "None"
 		else
-			cur = tostring(v); dispL.Text = cur
+			curBox.v = tostring(v); dispL.Text = curBox.v
 		end
 	end
 end
@@ -1166,34 +1180,38 @@ local function _wireDropdownSelection(opts: any, multi: boolean, mSel: any, disp
 	end
 end
 
-local function _toggleDropdown(menu: Frame, row: Frame, rotBox: Frame?, shield: TextButton)
+local function _toggleDropdown(menu: Frame, row: Frame, rotBox: Frame?, shield: TextButton, overlay: Frame, pill: TextButton)
 	local opening = not menu.Visible
 	_closeActiveDropdown()
 	if opening then
+		local ov = overlay.AbsolutePosition
+		local pp = pill.AbsolutePosition
+		local ps = pill.AbsoluteSize
+		menu.Position = UDim2.fromOffset(pp.X - ov.X, pp.Y - ov.Y + ps.Y + 4)
 		menu.Visible = true; row.ZIndex = 45; shield.Visible = true
 		_activeDrop = { menu = menu, row = row, rotBox = rotBox, shield = shield }
 		if rotBox then tw(rotBox, { Rotation = 225 }, Anim.Fast) end
 	end
 end
 
-local function _buildDropdownRow(Section: any, inner: Instance, maid: any, opts: any, showToast: (string) -> (), pagesHolder: Frame): any
+local function _buildDropdownRow(Section: any, inner: Instance, maid: any, opts: any, showToast: (string) -> (), pagesHolder: Frame, overlay: Frame): any
 	opts.Options = opts.Options or opts.Values or {}
 	local multi, rawDef = opts.Multi == true, opts.Default or opts.Options[1] or ""
-	local cur = type(rawDef) == "table" and rawDef[1] or rawDef
+	local curBox = { v = type(rawDef) == "table" and rawDef[1] or rawDef }
 	local mSel = {}
 	if multi and type(rawDef) == "table" then for _, o in ipairs(rawDef) do mSel[o] = true end end
-	local dispText = multi and type(rawDef) == "table" and (#rawDef > 0 and table.concat(rawDef, ", ") or "None") or tostring(cur)
+	local dispText = multi and type(rawDef) == "table" and (#rawDef > 0 and table.concat(rawDef, ", ") or "None") or tostring(curBox.v)
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl, dl = _mkLabel(opts.Name, "Text", row), opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
 	_positionLabels(nl, dl)
 	local pill, dispL, rotBox = _buildDropdownPill(row, dispText)
-	local el = mkBase(opts.Id, multi and rawDef or cur, row)
+	local el = mkBase(opts.Id, multi and rawDef or curBox.v, row)
 	local menu: Frame
-	local selFn = _wireDropdownSelection(opts, multi, mSel, dispL, showToast, function(v) cur = v end, _closeActiveDropdown)
-	menu = _buildDropdownMenu(row, opts, 32, selFn)
+	local selFn = _wireDropdownSelection(opts, multi, mSel, dispL, showToast, function(v) curBox.v = v end, _closeActiveDropdown)
+	menu = _buildDropdownMenu(overlay, opts, 32, selFn)
 	local shield = pagesHolder.Parent and pagesHolder.Parent:FindFirstChild("DropdownShield") :: TextButton
-	maid:Give(pill.MouseButton1Click:Connect(function() if shield then _toggleDropdown(menu, row, rotBox, shield) else menu.Visible = not menu.Visible end end))
-	_wireDropdownEl(el, multi, mSel, opts, dispL, cur)
+	maid:Give(pill.MouseButton1Click:Connect(function() if shield then _toggleDropdown(menu, row, rotBox, shield, overlay, pill) else menu.Visible = not menu.Visible end end))
+	_wireDropdownEl(el, multi, mSel, opts, dispL, curBox)
 	_bindRowHover(row, el, maid)
 	return el
 end
@@ -1212,9 +1230,7 @@ local function _buildInputBox(row: Frame, val: string, ph: string)
 	box.TextColor3 = Color3.new(1, 1, 1); box.PlaceholderText = ph
 	box.PlaceholderColor3 = T.TextHint; box.Text = val; box.TextXAlignment = Enum.TextXAlignment.Center
 	box.BackgroundTransparency = 1; box.ClearTextOnFocus = false; box.Size = UDim2.new(1, 0, 1, 0); box.Parent = ibg
-	pcall(function() box.Focused:Connect(function() tw(stroke, { Color = Color3.fromRGB(40, 215, 80) }, Anim.Fast) end) end)
-	pcall(function() box.FocusLost:Connect(function() tw(stroke, { Color = Color3.new(0, 0, 0) }, Anim.Fast) end) end)
-	return ibg, box
+	return ibg, box, stroke
 end
 
 local function _buildInputRow(Section: any, inner: Instance, maid: any, opts: any): any
@@ -1223,22 +1239,27 @@ local function _buildInputRow(Section: any, inner: Instance, maid: any, opts: an
 	local nl = _mkLabel(opts.Name, "Text", row)
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
 	_positionLabels(nl, dl)
-	local _, box = _buildInputBox(row, val, opts.Placeholder or "")
+	local _, box, stroke = _buildInputBox(row, val, opts.Placeholder or "")
+	local ok1, c1 = pcall(function() return box.Focused:Connect(function() tw(stroke, { Color = T.SliderFill }, Anim.Fast) end) end)
+	if ok1 and c1 then maid:Give(c1) end
+	local ok2, c2 = pcall(function() return box.FocusLost:Connect(function() tw(stroke, { Color = T.InputBorder }, Anim.Fast) end) end)
+	if ok2 and c2 then maid:Give(c2) end
 	maid:Give(box.FocusLost:Connect(function()
 		local t = opts.MaxLength and box.Text:sub(1, opts.MaxLength) or box.Text
 		box.Text = t; val = t
 		if opts.Callback then xpcall(opts.Callback, debug.traceback, t) end
 	end))
 	local el = mkBase(opts.Id, val, row)
-	function el:_apply(v: any) val = tostring(v); box.Text = val end
+	function el:_apply(v: any) val = tostring(v); box.Text = val; if opts.Callback then xpcall(opts.Callback, debug.traceback, val) end end
 	_bindRowHover(row, el, maid)
 	return el
 end
 
 local function _buildCompoundRow(Section: any, inner: Instance, maid: any, opts: any, showToast: (string) -> ()): any
 	local units = opts.Units or opts.Values or { "Unit", "x1", "x10", "Max" }
-	local uIdx = 1
 	local curUnit = opts.DefaultUnit or units[1]
+	local uIdx = 1
+	for i, u in ipairs(units) do if u == curUnit then uIdx = i; break end end
 	local curVal = opts.DefaultValue or opts.Default or "0"
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
 	local nl, dl = _mkLabel(opts.Name, "Text", row), opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
@@ -1288,7 +1309,10 @@ local function _buildCompoundRow(Section: any, inner: Instance, maid: any, opts:
 	local el = mkBase(opts.Id, { Unit = curUnit, Value = curVal }, row)
 	function el:_apply(v: any)
 		if type(v) == "table" then
-			if v.Unit then curUnit = tostring(v.Unit); uLbl.Text = curUnit end
+			if v.Unit then
+				curUnit = tostring(v.Unit); uLbl.Text = curUnit
+				for i, u in ipairs(units) do if u == curUnit then uIdx = i; break end end
+			end
 			if v.Value then curVal = tostring(v.Value); vBox.Text = curVal end
 		end
 	end
@@ -1369,7 +1393,8 @@ local function _wireButtonPress(el: any, row: Frame, isPrimary: boolean, opts: a
 		if el:IsDisabled() then return end
 		if opts.Callback then xpcall(opts.Callback, debug.traceback) end
 		tw(row, { BackgroundColor3 = T.SliderFill, BackgroundTransparency = 0 }, Anim.Button)
-		task.delay((Anim.ButtonOut :: TweenInfo).Time, function() tw(row, { BackgroundColor3 = isPrimary and T.SliderFill or T.RowBg, BackgroundTransparency = isPrimary and 0.1 or 0 }, Anim.ButtonOut) end)
+		local btnOutTime = Anim.ButtonOut and Anim.ButtonOut.Time or 0.15
+		task.delay(btnOutTime, function() tw(row, { BackgroundColor3 = isPrimary and T.SliderFill or T.RowBg, BackgroundTransparency = isPrimary and 0.1 or 0 }, Anim.ButtonOut) end)
 		el._fire(nil)
 	end
 end
@@ -1404,6 +1429,7 @@ local function _wireKeybindEvents(el: any, pill: TextButton, bound: Enum.KeyCode
 		Creator.Reg[pill] = { BackgroundColor3 = "InputBg", TextColor3 = "TextSub" }
 		tw(pill, { BackgroundColor3 = T.InputBg }, Anim.Keybind)
 		el:_raw(k)
+		el._fire(k)
 		if opts.Callback then xpcall(opts.Callback, debug.traceback, k) end
 	end
 	function el:_apply(v: any)
@@ -1517,7 +1543,7 @@ local function _buildMiniSlider(panel: Frame, ch: number, yOff: number, val: num
 	maid:Give(UserInputService.InputEnded:Connect(function(inp) if inp.UserInputType == Enum.UserInputType.MouseButton1 then cpDrag = false end end))
 end
 
-local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, opts: any, pagesHolder: Frame): any
+local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, opts: any, pagesHolder: Frame, overlay: Frame): any
 	local col = opts.Default or Color3.fromRGB(255, 255, 255)
 	local r_, g_, b_ = math.round(col.R * 255), math.round(col.G * 255), math.round(col.B * 255)
 	local row = _mkRow(Section, inner, opts.Description and L.RowHDesc or L.RowH)
@@ -1525,7 +1551,7 @@ local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, op
 	local dl = opts.Description and _mkLabel(opts.Description, "TextSub", row) or nil
 	_positionLabels(nl, dl)
 	local swatch = _buildColorSwatch(row, col)
-	local panel = Creator.New("Frame", { Name = "ColorPickerPanel", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 1, 6), Size = UDim2.fromOffset(200, 104), BackgroundColor3 = Color3.fromRGB(10, 13, 10), ZIndex = 50, Visible = false, ClipsDescendants = false, Parent = row }) :: Frame
+	local panel = Creator.New("Frame", { Name = "ColorPickerPanel", AnchorPoint = Vector2.new(0, 0), Position = UDim2.fromOffset(0, 0), Size = UDim2.fromOffset(200, 104), ThemeTag = { BackgroundColor3 = "InputBg" }, ZIndex = 1, Visible = false, ClipsDescendants = false, Parent = overlay }) :: Frame
 	Creator.New("UIStroke", { Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter, Color = Color3.new(0, 0, 0), Parent = panel })
 	local prev = Instance.new("Frame"); prev.Name = "Preview"; prev.Size = UDim2.new(1, 0, 0, 12); prev.BackgroundColor3 = col; prev.BorderSizePixel = 0; prev.ZIndex = 51; prev.Parent = panel
 	local hexL = Instance.new("TextLabel"); hexL.Text = string.format("#%02X%02X%02X", r_, g_, b_); hexL.FontFace = FONT_UI; hexL.TextSize = 10; hexL.TextColor3 = T.TextHint; hexL.BackgroundTransparency = 1; hexL.AnchorPoint = Vector2.new(0.5, 0); hexL.Position = UDim2.new(0.5, 0, 0, 88); hexL.Size = UDim2.new(0.9, 0, 0, 12); hexL.TextXAlignment = Enum.TextXAlignment.Center; hexL.ZIndex = 52; hexL.Parent = panel
@@ -1533,14 +1559,22 @@ local function _buildColorPickerRow(Section: any, inner: Instance, maid: any, op
 	_buildMiniSlider(panel, 1, 16, r_, function(v) r_ = v; rebuild() end, maid)
 	_buildMiniSlider(panel, 2, 40, g_, function(v) g_ = v; rebuild() end, maid)
 	_buildMiniSlider(panel, 3, 64, b_, function(v) b_ = v; rebuild() end, maid)
-	maid:Give(swatch.MouseButton1Click:Connect(function() panel.Visible = not panel.Visible end))
+	maid:Give(swatch.MouseButton1Click:Connect(function()
+		if not panel.Visible then
+			local ov = overlay.AbsolutePosition
+			local sp = swatch.AbsolutePosition
+			local ss = swatch.AbsoluteSize
+			panel.Position = UDim2.fromOffset(sp.X - ov.X + ss.X - 200, sp.Y - ov.Y + ss.Y + 6)
+		end
+		panel.Visible = not panel.Visible
+	end))
 	local el = mkBase(opts.Id, col, row)
 	function el:_apply(v: any) if typeof(v) == "Color3" then col = v; r_, g_, b_ = math.round(col.R * 255), math.round(col.G * 255), math.round(col.B * 255); rebuild() end end
 	_bindRowHover(row, el, maid)
 	return el
 end
 
-local function _bindBasicControls(Section: any, inner: Instance, maid: any, showToast: (string) -> (), pagesHolder: Frame)
+local function _bindBasicControls(Section: any, inner: Instance, maid: any, showToast: (string) -> (), pagesHolder: Frame, overlay: Frame)
 	function Section:Toggle(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildToggleRow(Section, inner, maid, opts, showToast)
@@ -1555,7 +1589,7 @@ local function _bindBasicControls(Section: any, inner: Instance, maid: any, show
 	end
 	function Section:Dropdown(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-		return _buildDropdownRow(Section, inner, maid, opts, showToast, pagesHolder)
+		return _buildDropdownRow(Section, inner, maid, opts, showToast, pagesHolder, overlay)
 	end
 	function Section:Compound(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
@@ -1568,7 +1602,7 @@ local function _bindBasicControls(Section: any, inner: Instance, maid: any, show
 	Section.AddCompound = Section.Compound
 end
 
-local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pagesHolder: Frame)
+local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pagesHolder: Frame, overlay: Frame)
 	function Section:Input(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
 		return _buildInputRow(Section, inner, maid, opts)
@@ -1587,7 +1621,7 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 	end
 	function Section:ColorPicker(opts: any): any
 		if Library.Options[opts.Id] then return Library.Options[opts.Id] end
-		return _buildColorPickerRow(Section, inner, maid, opts, pagesHolder)
+		return _buildColorPickerRow(Section, inner, maid, opts, pagesHolder, overlay)
 	end
 	Section.AddInput = Section.Input
 	Section.AddKeybind = Section.Keybind
@@ -1596,12 +1630,12 @@ local function _bindDisplayControls(Section: any, inner: Instance, maid: any, pa
 	Section.AddColorPicker = Section.ColorPicker
 end
 
-local function _bindSectionControls(Section: any, inner: Instance, maid: any, showToast: (string) -> (), pagesHolder: Frame)
-	_bindBasicControls(Section, inner, maid, showToast, pagesHolder)
-	_bindDisplayControls(Section, inner, maid, pagesHolder)
+local function _bindSectionControls(Section: any, inner: Instance, maid: any, showToast: (string) -> (), pagesHolder: Frame, overlay: Frame)
+	_bindBasicControls(Section, inner, maid, showToast, pagesHolder, overlay)
+	_bindDisplayControls(Section, inner, maid, pagesHolder, overlay)
 end
 
-local function _buildSection(tab: any, page: ScrollingFrame, secLabel: string?, maid: any, showToast: (string) -> (), pagesHolder: Frame): any
+local function _buildSection(tab: any, page: ScrollingFrame, secLabel: string?, maid: any, showToast: (string) -> (), pagesHolder: Frame, overlay: Frame): any
 	if secLabel and secLabel ~= "" then
 		tab._secLabel = secLabel
 		if tab._secTitle then tab._secTitle.Text = secLabel end
@@ -1616,11 +1650,11 @@ local function _buildSection(tab: any, page: ScrollingFrame, secLabel: string?, 
 	local rowLayout = Instance.new("UIListLayout"); rowLayout.SortOrder = Enum.SortOrder.LayoutOrder; rowLayout.Padding = UDim.new(0, L.RowListPad); rowLayout.Parent = inner
 	local Section: any = { _frame = secFrame, _inner = inner, _rows = 0 }
 	table.insert(tab._sections, Section)
-	_bindSectionControls(Section, inner, maid, showToast, pagesHolder)
+	_bindSectionControls(Section, inner, maid, showToast, pagesHolder, overlay)
 	return Section
 end
 
-local function _buildTabItem(window: any, tabLabel: string, opts_: any, leftSidebar: ScrollingFrame, rightSidebar: ScrollingFrame, pagesHolder: Frame, maid: any, activateTab: (any) -> (), getActiveTab: () -> any, showToast: (string) -> (), secTitle: TextLabel?): any
+local function _buildTabItem(window: any, tabLabel: string, opts_: any, leftSidebar: ScrollingFrame, rightSidebar: ScrollingFrame, pagesHolder: Frame, overlay: Frame, maid: any, activateTab: (any) -> (), getActiveTab: () -> any, showToast: (string) -> (), secTitle: TextLabel?): any
 	local isRight = opts_ and type(opts_.Side) == "string" and opts_.Side:lower() == "right"
 	local sidebar = isRight and rightSidebar or leftSidebar
 	local tabList = isRight and window._utilTabs or window._tabs
@@ -1635,11 +1669,11 @@ local function _buildTabItem(window: any, tabLabel: string, opts_: any, leftSide
 	table.insert(tabList, Tab)
 	if isRight and #window._utilTabs == 1 and not getActiveTab() then
 		activateTab(Tab)
-	elseif not isRight and #window._tabs == 1 then
+	elseif not isRight and #window._tabs == 1 and not getActiveTab() then
 		activateTab(Tab)
 	end
 	function Tab:Section(secLabel: string?): any
-		return _buildSection(self, page, secLabel, maid, showToast, pagesHolder)
+		return _buildSection(self, page, secLabel, maid, showToast, pagesHolder, overlay)
 	end
 	Tab.AddSection = Tab.Section
 	return Tab
@@ -1671,26 +1705,24 @@ local function _wireWindowMethods(Window: any, maid: any, gui: ScreenGui)
 	function Window:IsDestroyed(): boolean return gui == nil or not gui.Parent end
 end
 
-local function _initWindowObj(gui: ScreenGui, master: Frame, maid: any, pagesHolder: Frame, leftSidebar: ScrollingFrame, rightSidebar: ScrollingFrame, secTitle: TextLabel, showToast: (string) -> ()): any
+local function _initWindowObj(gui: ScreenGui, master: Frame, maid: any, pagesHolder: Frame, overlay: Frame, leftSidebar: ScrollingFrame, rightSidebar: ScrollingFrame, secTitle: TextLabel, showToast: (string) -> ()): any
 	local activeTab: any = nil
 	local Window: any = { _gui = gui, _root = master, _maid = maid, _tabs = {} :: {any}, _utilTabs = {} :: {any} }
 	local function activateTab(tab: any)
 		if activeTab == tab then return end
 		if activeTab then
 			activeTab._page.Visible = false
-			tw(activeTab._btn, { Size = UDim2.new(1, 0, 0, L.TabH) }, Anim.Tab)
 			activeTab._btnLabel.TextColor3 = T.TabText
 		end
 		activeTab = tab
 		tab._page.Visible = true
-		tw(tab._btn, { Size = UDim2.new(1, 0, 0, L.TabH) }, Anim.Tab)
 		tab._btnLabel.TextColor3 = T.TabTextActive
 		secTitle.Text = tab._secLabel or (tab._label .. " Section")
 		_closeActiveDropdown()
 		showToast("Switched to " .. tab._label)
 	end
 	function Window:Tab(tabLabel: string, opts_: {Side: string?}?): any
-		return _buildTabItem(self, tabLabel, opts_, leftSidebar, rightSidebar, pagesHolder, maid, activateTab, function() return activeTab end, showToast, secTitle)
+		return _buildTabItem(self, tabLabel, opts_, leftSidebar, rightSidebar, pagesHolder, overlay, maid, activateTab, function() return activeTab end, showToast, secTitle)
 	end
 	Window.AddTab = Window.Tab
 	_wireWindowMethods(Window, maid, gui)
@@ -1698,7 +1730,7 @@ local function _initWindowObj(gui: ScreenGui, master: Frame, maid: any, pagesHol
 end
 
 local function _buildWindowUi(gui: ScreenGui, cfg: WindowCfg, title: string, subtitle: string, W: number, H: number)
-	local master, root, shield = _buildMasterAndRoot(gui, W, H)
+	local master, root, shield, overlay = _buildMasterAndRoot(gui, W, H)
 	local toastFrame, toastLabel = _newToastFrame(gui)
 	local showToast = _buildToastRunner(toastFrame, toastLabel)
 	local hdr = _buildHeader(root, title, subtitle)
@@ -1709,7 +1741,7 @@ local function _buildWindowUi(gui: ScreenGui, cfg: WindowCfg, title: string, sub
 	local leftSidebar = _buildSidebar(master, "LeftSidebar", false)
 	local rightSidebar = _buildSidebar(master, "RightSidebar", true)
 	local reopenPill = _buildReopenPill(gui, title)
-	return master, root, hdr, closeBtn, reopenPill, secHeader, secTitle, rotBox, pagesHolder, bottomBar, searchInput, leftSidebar, rightSidebar, showToast, shield
+	return master, root, hdr, closeBtn, reopenPill, secHeader, secTitle, rotBox, pagesHolder, bottomBar, searchInput, leftSidebar, rightSidebar, showToast, shield, overlay
 end
 
 local function _wireWindow(maid: any, refs: any, minKey: Enum.KeyCode)
@@ -1731,12 +1763,12 @@ function Library:CreateWindow(cfg: WindowCfg?)
 	local maid = Maid.new()
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "IgnisUI"; gui.ResetOnSpawn = false
-	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 	SafeParentGui(gui)
-	local m, rt, hd, cb, rp, sh, st, rb, ph, bb, si, ls, rs, toast, shld = _buildWindowUi(gui, cfg, title, subtitle, W, H)
+	local m, rt, hd, cb, rp, sh, st, rb, ph, bb, si, ls, rs, toast, shld, ov = _buildWindowUi(gui, cfg, title, subtitle, W, H)
 	local refs = { root=rt, hdr=hd, master=m, closeBtn=cb, reopenPill=rp, secHeader=sh, secTitle=st, rotBox=rb, pagesHolder=ph, bottomBar=bb, searchInput=si, leftSidebar=ls, rightSidebar=rs, showToast=toast, shield=shld }
 	_wireWindow(maid, refs, cfg.MinimizeKey or Enum.KeyCode.RightShift)
-	local Window = _initWindowObj(gui, m, maid, ph, ls, rs, st, toast)
+	local Window = _initWindowObj(gui, m, maid, ph, ov, ls, rs, st, toast)
 	Library.Window = Window
 	return Window
 end

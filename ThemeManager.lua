@@ -1,71 +1,76 @@
 local BASE: {[string]: Color3} = {
-	WinBg = Color3.fromRGB(18, 22, 18),
-	HdrTop = Color3.fromRGB(248, 55, 55),
-	HdrMid = Color3.fromRGB(224, 32, 32),
-	HdrBot = Color3.fromRGB(110, 10, 10),
-	HdrBevel = Color3.fromRGB(115, 14, 14),
-	HdrBorder = Color3.fromRGB(0, 0, 0),
-	SidebarBg = Color3.fromRGB(10, 12, 10),
-	SidebarBorder = Color3.fromRGB(0, 0, 0),
-	TabHoverBg = Color3.fromRGB(248, 55, 55),
-	TabActiveBg = Color3.fromRGB(224, 32, 32),
-	TabActiveLeft = Color3.fromRGB(115, 14, 14),
-	TabText = Color3.fromRGB(255, 255, 255),
-	TabTextActive = Color3.fromRGB(255, 255, 255),
-	ContentBg = Color3.fromRGB(10, 14, 10),
-	SectionBg = Color3.fromRGB(10, 14, 10),
-	SectionBorder = Color3.fromRGB(0, 0, 0),
-	SectionBevel = Color3.fromRGB(115, 14, 14),
-	RowBg = Color3.fromRGB(12, 16, 12),
-	RowBgHover = Color3.fromRGB(18, 24, 18),
-	RowBorder = Color3.fromRGB(34, 40, 34),
-	RowBorderOuter = Color3.fromRGB(0, 0, 0),
-	Text = Color3.fromRGB(255, 255, 255),
-	TextSub = Color3.fromRGB(180, 190, 185),
-	TextHint = Color3.fromRGB(110, 120, 110),
-	ToggleOn = Color3.fromRGB(38, 212, 78),
-	ToggleOnDark = Color3.fromRGB(18, 148, 50),
-	ToggleOff = Color3.fromRGB(10, 14, 10),
-	NotifSuccess = Color3.fromRGB(38, 185, 75),
-	NotifWarning = Color3.fromRGB(220, 155, 20),
-	NotifInfo = Color3.fromRGB(55, 145, 230),
-	ToggleKnob = Color3.fromRGB(250, 250, 250),
-	SliderTrack = Color3.fromRGB(10, 14, 10),
-	SliderFill = Color3.fromRGB(224, 32, 32),
-	SliderKnob = Color3.fromRGB(250, 250, 250),
-	InputBg = Color3.fromRGB(8, 11, 8),
-	InputBorder = Color3.fromRGB(0, 0, 0),
-	InputText = Color3.fromRGB(255, 255, 255),
-	NotifBg = Color3.fromRGB(15, 18, 15),
-	NotifBorder = Color3.fromRGB(0, 0, 0),
-	NotifBar = Color3.fromRGB(224, 32, 32),
-	ScrollBar = Color3.fromRGB(48, 52, 66),
+	WinBg          = Color3.fromRGB(14, 12, 18),
+	HdrTop         = Color3.fromRGB(255, 108, 22),
+	HdrMid         = Color3.fromRGB(230, 72, 15),
+	HdrBot         = Color3.fromRGB(135, 28, 6),
+	HdrBevel       = Color3.fromRGB(165, 38, 8),
+	HdrBorder      = Color3.fromRGB(18, 8, 5),
+	SidebarBg      = Color3.fromRGB(10, 8, 14),
+	SidebarBorder  = Color3.fromRGB(30, 22, 45),
+	TabHoverBg     = Color3.fromRGB(255, 108, 22),
+	TabActiveBg    = Color3.fromRGB(230, 72, 15),
+	TabActiveLeft  = Color3.fromRGB(135, 28, 6),
+	TabText        = Color3.fromRGB(255, 255, 255),
+	TabTextActive  = Color3.fromRGB(255, 255, 255),
+	ContentBg      = Color3.fromRGB(11, 9, 16),
+	SectionBg      = Color3.fromRGB(13, 11, 18),
+	SectionBorder  = Color3.fromRGB(32, 26, 50),
+	SectionBevel   = Color3.fromRGB(165, 38, 8),
+	RowBg          = Color3.fromRGB(16, 13, 22),
+	RowBgHover     = Color3.fromRGB(22, 18, 32),
+	RowBorder      = Color3.fromRGB(40, 32, 60),
+	RowBorderOuter = Color3.fromRGB(8, 6, 12),
+	Text           = Color3.fromRGB(255, 255, 255),
+	TextSub        = Color3.fromRGB(182, 176, 200),
+	TextHint       = Color3.fromRGB(108, 98, 130),
+	ToggleOn       = Color3.fromRGB(38, 212, 78),
+	ToggleOnDark   = Color3.fromRGB(18, 148, 50),
+	ToggleOff      = Color3.fromRGB(11, 9, 16),
+	NotifSuccess   = Color3.fromRGB(38, 185, 75),
+	NotifWarning   = Color3.fromRGB(220, 155, 20),
+	NotifInfo      = Color3.fromRGB(55, 145, 230),
+	ToggleKnob     = Color3.fromRGB(250, 250, 250),
+	SliderTrack    = Color3.fromRGB(11, 9, 16),
+	SliderFill     = Color3.fromRGB(230, 72, 15),
+	SliderKnob     = Color3.fromRGB(250, 250, 250),
+	InputBg        = Color3.fromRGB(9, 7, 14),
+	InputBorder    = Color3.fromRGB(32, 26, 50),
+	InputText      = Color3.fromRGB(255, 255, 255),
+	NotifBg        = Color3.fromRGB(14, 12, 18),
+	NotifBorder    = Color3.fromRGB(32, 26, 50),
+	NotifBar       = Color3.fromRGB(230, 72, 15),
+	ScrollBar      = Color3.fromRGB(75, 60, 105),
+	DropdownBg     = Color3.fromRGB(18, 15, 26),
 }
 
 local THEME_PRESETS: {[string]: {[string]: Color3}} = {
 	["Ignis Dark"] = {},
 	["Ignis Crimson"] = {
-		HdrTop = Color3.fromRGB(235, 35, 70),
-		HdrMid = Color3.fromRGB(210, 20, 50),
-		HdrBot = Color3.fromRGB(95, 6, 22),
-		HdrBevel = Color3.fromRGB(95, 8, 24),
+		HdrTop        = Color3.fromRGB(235, 35, 70),
+		HdrMid        = Color3.fromRGB(210, 20, 50),
+		HdrBot        = Color3.fromRGB(95, 6, 22),
+		HdrBevel      = Color3.fromRGB(95, 8, 24),
+		TabActiveBg   = Color3.fromRGB(210, 20, 50),
+		TabHoverBg    = Color3.fromRGB(235, 35, 70),
 		TabActiveLeft = Color3.fromRGB(210, 20, 50),
-		SectionBevel = Color3.fromRGB(95, 8, 24),
-		SliderFill = Color3.fromRGB(210, 20, 50),
-		NotifBar = Color3.fromRGB(210, 20, 50),
-		WinBg = Color3.fromRGB(14, 12, 16),
-		SidebarBg = Color3.fromRGB(11, 9, 13),
-		ContentBg = Color3.fromRGB(15, 13, 18),
+		SectionBevel  = Color3.fromRGB(95, 8, 24),
+		SliderFill    = Color3.fromRGB(210, 20, 50),
+		NotifBar      = Color3.fromRGB(210, 20, 50),
+		WinBg         = Color3.fromRGB(14, 12, 16),
+		SidebarBg     = Color3.fromRGB(11, 9, 13),
+		ContentBg     = Color3.fromRGB(15, 13, 18),
 	},
 	["Ignis Ember"] = {
-		HdrTop = Color3.fromRGB(255, 100, 40),
-		HdrMid = Color3.fromRGB(230, 70, 20),
-		HdrBot = Color3.fromRGB(120, 30, 5),
-		HdrBevel = Color3.fromRGB(110, 28, 8),
-		TabActiveLeft = Color3.fromRGB(230, 70, 20),
-		SectionBevel = Color3.fromRGB(110, 28, 8),
-		SliderFill = Color3.fromRGB(230, 70, 20),
-		NotifBar = Color3.fromRGB(230, 70, 20),
+		HdrTop        = Color3.fromRGB(255, 135, 30),
+		HdrMid        = Color3.fromRGB(248, 98, 22),
+		HdrBot        = Color3.fromRGB(160, 45, 8),
+		HdrBevel      = Color3.fromRGB(195, 55, 10),
+		TabActiveBg   = Color3.fromRGB(248, 98, 22),
+		TabHoverBg    = Color3.fromRGB(255, 135, 30),
+		TabActiveLeft = Color3.fromRGB(160, 45, 8),
+		SectionBevel  = Color3.fromRGB(195, 55, 10),
+		SliderFill    = Color3.fromRGB(248, 98, 22),
+		NotifBar      = Color3.fromRGB(248, 98, 22),
 	},
 }
 
@@ -82,7 +87,7 @@ local function applyGradientColor(inst: UIGradient, tokens: {[string]: Color3})
 	inst.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, tokens.HdrTop),
 		ColorSequenceKeypoint.new(0.25, tokens.HdrMid),
-		ColorSequenceKeypoint.new(0.75, Color3.fromRGB(175, 14, 14)),
+		ColorSequenceKeypoint.new(0.75, tokens.HdrBevel),
 		ColorSequenceKeypoint.new(1, tokens.HdrBot),
 	})
 end
@@ -97,7 +102,7 @@ return function(Library: any)
 	end
 
 	local ThemeManager: any = {
-		_current = Library._theme or "Ignis Dark",
+		_current = (THEME_PRESETS[Library._theme or ""] and Library._theme) or "Ignis Dark",
 	}
 
 	local function repaintAll()
@@ -123,6 +128,8 @@ return function(Library: any)
 		end
 	end
 
+	local _customTokens: {[string]: Color3} = {}
+
 	local function applyTheme(name: string): boolean
 		local preset = THEME_PRESETS[name]
 		if not preset then
@@ -134,6 +141,9 @@ return function(Library: any)
 			T[k] = v
 		end
 		for k, v in pairs(preset) do
+			T[k] = v
+		end
+		for k, v in pairs(_customTokens) do
 			T[k] = v
 		end
 		repaintAll()
@@ -191,6 +201,7 @@ return function(Library: any)
 	end
 
 	function ThemeManager:SetToken(token: string, color: Color3)
+		_customTokens[token] = color
 		T[token] = color
 		repaintAll()
 	end
@@ -200,7 +211,8 @@ return function(Library: any)
 	end
 
 	function ThemeManager:Reset()
-		applyTheme(ThemeManager._current)
+		local target = THEME_PRESETS[ThemeManager._current] and ThemeManager._current or "Ignis Dark"
+		applyTheme(target)
 	end
 
 	function ThemeManager:OnChanged(fn: (string) -> ()): () -> ()

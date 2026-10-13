@@ -27,6 +27,10 @@ local function stripConfigPath(path: string, folder: string): string?
 	if string.sub(cleanPath, -5) == ".json" then
 		return string.sub(cleanPath, 1, -6)
 	end
+	local basename = path:match("[^/\\]+%.json$")
+	if basename then
+		return string.sub(basename, 1, -6)
+	end
 	return nil
 end
 
@@ -50,14 +54,18 @@ return function(Library: any)
 	function SaveManager:GetData(): {[string]: any}
 		local out: {[string]: any} = {}
 		local options = Library.Options or {}
+		self._saving = true
 		for id, el in pairs(options) do
-			local ok, v = pcall(function()
-				return el:Get()
-			end)
-			if ok and v ~= nil then
-				out[id] = serializeOptionValue(v)
+			if not el._dragging then
+				local ok, v = pcall(function()
+					return el:Get()
+				end)
+				if ok and v ~= nil then
+					out[id] = serializeOptionValue(v)
+				end
 			end
 		end
+		self._saving = false
 		return out
 	end
 
@@ -138,7 +146,14 @@ return function(Library: any)
 			return false
 		end
 		local k = key or self._key
-		return pcall(df, self._folder .. "/" .. k .. ".json")
+		local path = self._folder .. "/" .. k .. ".json"
+		local ok = pcall(df, path)
+		local isf = rawget(genv, "isfile")
+		if isf then
+			local checkOk, stillExists = pcall(isf, path)
+			return ok and checkOk and not stillExists
+		end
+		return ok
 	end
 
 	function SaveManager:ListConfigs(): {string}
@@ -174,12 +189,14 @@ return function(Library: any)
 		end
 		task.spawn(function()
 			while running do
-				self:Save()
 				local elapsed = 0
 				local step = math.min(0.5, interval)
 				while running and elapsed < interval do
 					task.wait(step)
 					elapsed += step
+				end
+				if running then
+					self:Save()
 				end
 			end
 		end)
